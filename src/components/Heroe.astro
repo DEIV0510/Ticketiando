@@ -91,9 +91,7 @@ const n = eventos.length;
                     <a class="btn btn--primario btn--grande" href={e.compraUrl} target="_blank" rel="noopener">
                       <Icono nombre="boleta" /> Comprar boletas
                     </a>
-                    <a class="btn btn--contorno btn--grande" href={detalle}>
-                      Ver detalles
-                    </a>
+                    <a class="enlace-flecha slide__detalles" href={detalle}>Ver detalles <Icono nombre="flecha" /></a>
                   </div>
                   <Cuenta evento={e} class="slide__cuenta" />
                 </div>
@@ -317,8 +315,15 @@ const n = eventos.length;
     flex-wrap: wrap;
     gap: 10px;
   }
+  .slide__ctas {
+    align-items: center;
+    gap: 10px 22px;
+  }
   .slide__ctas .btn {
     flex: 1 1 auto;
+  }
+  .slide__detalles {
+    border-bottom-color: transparent;
   }
   .slide__compra > :global(.precio-desde) {
     grid-area: precio;

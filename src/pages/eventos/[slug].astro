@@ -112,12 +112,15 @@ const textoCompartir = `${e.titulo} · ${fechaLarga(e.inicio)} · ${e.lugar}, ${
             {e.edadMinima && <span class="chip">{e.edadMinima}</span>}
           </div>
           <h1 class="ficha-cab__titulo">{e.titulo}</h1>
-          <p class="ficha-cab__bajada">{e.bajada}</p>
           <ul class="ficha-cab__meta">
             <li><Icono nombre="calendario" /> <span class="mayus-inicial">{fechaLarga(e.inicio)}</span></li>
             <li><Icono nombre="reloj" /> {e.horario}{e.apertura && <span class="ficha-cab__sub"> · puertas {e.apertura}</span>}</li>
             <li><Icono nombre="ubicacion" /> {e.lugar}, {e.ciudad}</li>
           </ul>
+          <div class="ficha-cab__compra">
+            <a class="btn btn--primario btn--grande" href={e.compraUrl} target="_blank" rel="noopener"><Icono nombre="boleta" /> Comprar boletas</a>
+            <a class="enlace-flecha" href="#localidades">Ver precios <Icono nombre="flecha" /></a>
+          </div>
           <Cuenta evento={e} class="ficha-cab__cuenta" />
         </div>
         <figure class="ficha-cab__arte">
@@ -140,36 +143,6 @@ const textoCompartir = `${e.titulo} · ${fechaLarga(e.inicio)} · ${e.lugar}, ${
   <div class="ficha" data-superficie="papel">
     <div class="contenedor ficha__rejilla">
       <div class="ficha__principal">
-        <section class="bloque" aria-labelledby="sobre">
-          <h2 id="sobre" class="bloque__titulo">Sobre el evento</h2>
-          <div class="bloque__texto">
-            {e.descripcion.map((p) => <p>{p}</p>)}
-          </div>
-          {
-            e.destacados && (
-              <ul class="destacados">
-                {e.destacados.map((d) => (
-                  <li>{d}</li>
-                ))}
-              </ul>
-            )
-          }
-          {
-            e.artistas && (
-              <div class="artistas">
-                <h3>
-                  <Icono nombre="musica" /> En tarima
-                </h3>
-                <ul>
-                  {e.artistas.map((a) => (
-                    <li>{a}</li>
-                  ))}
-                </ul>
-              </div>
-            )
-          }
-        </section>
-
         <section class="bloque" aria-labelledby="precios" id="localidades">
           <div class="bloque__cab">
             <h2 id="precios" class="bloque__titulo">Localidades y precios</h2>
@@ -277,6 +250,36 @@ const textoCompartir = `${e.titulo} · ${fechaLarga(e.inicio)} · ${e.lugar}, ${
           <a class="enlace-flecha" href={mapsUrl(e)} target="_blank" rel="noopener"><Icono nombre="mapa" /> Cómo llegar en Google Maps <Icono nombre="externo" /></a>
         </section>
 
+        <section class="bloque" aria-labelledby="sobre">
+          <h2 id="sobre" class="bloque__titulo">El evento</h2>
+          <div class="bloque__texto">
+            {e.descripcion.map((p) => <p>{p}</p>)}
+          </div>
+          {
+            e.destacados && (
+              <ul class="destacados">
+                {e.destacados.map((d) => (
+                  <li>{d}</li>
+                ))}
+              </ul>
+            )
+          }
+          {
+            e.artistas && (
+              <div class="artistas">
+                <h3>
+                  <Icono nombre="musica" /> En tarima
+                </h3>
+                <ul>
+                  {e.artistas.map((a) => (
+                    <li>{a}</li>
+                  ))}
+                </ul>
+              </div>
+            )
+          }
+        </section>
+
         {
           e.imagenes.mapa && (
             <section class="bloque" aria-labelledby="mapa">
@@ -299,13 +302,6 @@ const textoCompartir = `${e.titulo} · ${fechaLarga(e.inicio)} · ${e.lugar}, ${
             </section>
           )
         }
-
-        <section class="bloque" aria-labelledby="afiche">
-          <h2 id="afiche" class="bloque__titulo">Afiche oficial</h2>
-          <div class="afiches">
-            <Picture src={e.imagenes.poster} alt={e.imagenes.posterAlt} formats={['avif', 'webp']} widths={[400, 560, 700, 1000]} sizes="(min-width: 1080px) 380px, 100vw" loading="lazy" quality={72} fallbackFormat="jpg" />
-          </div>
-        </section>
 
         <section class="legal-evento" aria-label="Responsable del evento">
           <dl>
@@ -514,6 +510,16 @@ const textoCompartir = `${e.titulo} · ${fechaLarga(e.inicio)} · ${e.lugar}, ${
   .ficha-cab__sub {
     color: var(--texto-2);
     font-weight: 500;
+  }
+  .ficha-cab__compra {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 22px;
+    margin-top: 4px;
+  }
+  .ficha-cab__compra .enlace-flecha {
+    border-bottom-color: transparent;
   }
   .mayus-inicial::first-letter {
     text-transform: uppercase;

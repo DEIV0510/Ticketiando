@@ -1,0 +1,111 @@
+---
+// Versión corta para la portada. La completa vive en /ayuda/#compra-segura.
+import Icono from './Icono.astro';
+import { CANALES_OFICIALES, SENALES_ESTAFA } from '../data/sitio';
+---
+
+<section class="corta" data-superficie="noche" aria-labelledby="corta-titulo">
+  <div class="contenedor corta__in">
+    <div class="corta__texto">
+      <h2 id="corta-titulo" class="corta__titulo"><Icono nombre="escudo" /> Compra solo en canales oficiales</h2>
+      <p class="corta__canales">
+        {
+          CANALES_OFICIALES.map((c, i) => (
+            <>
+              {i > 0 && <span aria-hidden="true"> · </span>}
+              <a href={c.href} {...(c.href.startsWith('http') ? { target: '_blank', rel: 'noopener' } : {})}>
+                {c.valor}
+              </a>
+            </>
+          ))
+        }
+      </p>
+    </div>
+    <ul class="corta__senales" aria-label="Señales de estafa">
+      {
+        SENALES_ESTAFA.map((s) => (
+          <li>
+            <Icono nombre="alerta" /> {s.titulo}
+          </li>
+        ))
+      }
+    </ul>
+    <a class="enlace-flecha corta__mas" href="/ayuda/#compra-segura">Cómo evitar estafas <Icono nombre="flecha" /></a>
+  </div>
+</section>
+
+<style>
+  .corta {
+    padding-block: 32px;
+    background:
+      radial-gradient(60% 120% at 100% 0%, rgb(255 81 0 / 0.16), transparent 60%),
+      var(--noche);
+  }
+  .corta__in {
+    display: grid;
+    gap: 18px;
+  }
+  @media (min-width: 1080px) {
+    .corta__in {
+      grid-template-columns: 1fr 1.1fr auto;
+      align-items: center;
+      gap: 40px;
+    }
+  }
+  .corta__titulo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: clamp(1.5rem, 2.6vw, 2rem);
+    font-weight: 900;
+    font-stretch: var(--muy-estrecha);
+    font-family: var(--fuente-68);
+    text-transform: uppercase;
+  }
+  .corta__titulo :global(svg) {
+    width: 28px;
+    height: 28px;
+    flex: none;
+    color: var(--naranja);
+  }
+  .corta__canales {
+    margin-top: 6px;
+    color: var(--texto-2);
+    font-size: 0.9375rem;
+  }
+  .corta__canales a {
+    font-weight: 700;
+    color: var(--blanco);
+    text-decoration: none;
+  }
+  .corta__canales a:hover {
+    color: var(--naranja-claro);
+    text-decoration: underline;
+  }
+  .corta__senales {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .corta__senales li {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 10px;
+    border: 1px solid var(--linea-fuerte);
+    font-size: 0.8125rem;
+    font-weight: 700;
+  }
+  .corta__senales :global(svg) {
+    width: 15px;
+    height: 15px;
+    color: var(--naranja);
+  }
+  .corta__mas {
+    justify-self: start;
+    white-space: nowrap;
+  }
+</style>

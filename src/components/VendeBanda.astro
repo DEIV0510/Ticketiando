@@ -8,18 +8,10 @@ const ORGANIZADORES = ['Live Concerts Latam', 'LPC Producciones', 'Alpha Musik C
 <section class="vende" aria-labelledby="vende-titulo">
   <div class="contenedor vende__in">
     <div class="vende__texto">
-      <p class="antetitulo">Para organizadores</p>
-      <h2 id="vende-titulo" class="titulo-seccion">Vende tu evento con Ticketiando</h2>
-      <p class="entrada">
-        Venta de boletería en línea y en canales físicos en cualquier parte del país. Habilitamos puntos físicos según la demanda de tu evento, sobre una plataforma con seguridad transaccional.
-      </p>
-      <ul class="vende__lista">
-        <li><Icono nombre="boleta" /> Venta en línea las 24 horas</li>
-        <li><Icono nombre="edificio" /> Canales físicos según la demanda</li>
-        <li><Icono nombre="escudo" /> Pagos seguros y soporte al comprador</li>
-      </ul>
+      <h2 id="vende-titulo" class="titulo-seccion">¿Organizas un evento?</h2>
+      <p class="entrada">Vende tu boletería con Ticketiando: en línea y en puntos físicos, en todo el país.</p>
       <div class="vende__ctas">
-        <a class="btn btn--noche btn--grande" href="/vende-tu-evento/">Cuéntanos de tu evento <Icono nombre="flecha" /></a>
+        <a class="btn btn--noche btn--grande" href="/vende-tu-evento/">Vende tu evento <Icono nombre="flecha" /></a>
       </div>
     </div>
     <div class="vende__aliados">
@@ -39,7 +31,7 @@ const ORGANIZADORES = ['Live Concerts Latam', 'LPC Producciones', 'Alpha Musik C
     --linea: rgb(0 10 50 / 0.2);
     background: var(--naranja);
     color: var(--noche);
-    padding-block: clamp(56px, 7vw, 96px);
+    padding-block: clamp(40px, 5vw, 64px);
     position: relative;
     overflow: hidden;
   }
@@ -69,24 +61,6 @@ const ORGANIZADORES = ['Live Concerts Latam', 'LPC Producciones', 'Alpha Musik C
   .vende__texto {
     display: grid;
     gap: 18px;
-  }
-  .vende__lista {
-    list-style: none;
-    margin: 6px 0 0;
-    padding: 0;
-    display: grid;
-    gap: 10px;
-    font-weight: 700;
-  }
-  .vende__lista li {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-  }
-  .vende__lista :global(svg) {
-    width: 20px;
-    height: 20px;
-    flex: none;
   }
   .vende__ctas {
     margin-top: 8px;

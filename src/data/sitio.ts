@@ -55,9 +55,7 @@ export const MEDIOS_PAGO = ['PSE', 'Visa', 'Mastercard', 'Mercado Pago'] as cons
 
 export const NAV = [
   { texto: 'Eventos', href: '/eventos/' },
-  { texto: 'Cómo comprar', href: '/ayuda/#como-comprar' },
   { texto: 'Compra segura', href: '/ayuda/#compra-segura' },
-  { texto: 'Nosotros', href: '/nosotros/' },
   { texto: 'Ayuda', href: '/ayuda/' },
 ];
 

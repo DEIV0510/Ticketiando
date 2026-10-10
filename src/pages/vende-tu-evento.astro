@@ -5,10 +5,10 @@ import FormularioWhatsApp from '../components/FormularioWhatsApp.astro';
 import { CONTACTO, EMPRESA } from '../data/sitio';
 
 const beneficios = [
-  { icono: 'boleta' as const, titulo: 'Venta en línea 24/7', texto: 'Tus asistentes compran a cualquier hora del día desde ticketiando.com y nuestra plataforma de venta.' },
-  { icono: 'edificio' as const, titulo: 'Canales físicos', texto: 'Habilitamos puntos de venta físicos según la demanda de tu evento y las necesidades del mercado.' },
-  { icono: 'escudo' as const, titulo: 'Seguridad transaccional', texto: 'Pagos con PSE y tarjetas a través de Mercado Pago, sobre una plataforma con estándares de tecnología y seguridad.' },
-  { icono: 'megafono' as const, titulo: 'Vitrina para tu evento', texto: 'Ficha con precios por localidad, información importante, mapa y código PULEP, lista para compartir en redes.' },
+  { icono: 'boleta' as const, titulo: 'Venta en línea 24/7' },
+  { icono: 'edificio' as const, titulo: 'Puntos físicos según la demanda' },
+  { icono: 'escudo' as const, titulo: 'Pagos seguros con PSE y tarjeta' },
+  { icono: 'megafono' as const, titulo: 'Ficha del evento lista para redes' },
 ];
 const ORGANIZADORES = ['Live Concerts Latam', 'LPC Producciones', 'Alpha Musik Colombia'];
 ---
@@ -23,7 +23,7 @@ const ORGANIZADORES = ['Live Concerts Latam', 'LPC Producciones', 'Alpha Musik C
         <p class="antetitulo">Para organizadores</p>
         <h1 class="titulo-seccion cab__titulo">Vende tu evento con Ticketiando</h1>
         <p class="entrada">
-          Ofrecemos a empresarios una alternativa de venta de boletería en línea y fuera de línea en cualquier parte del país. Cuéntanos de tu evento y te contactamos.
+          Venta de boletería en línea y en puntos físicos, en todo el país. Cuéntanos de tu evento y te contactamos.
         </p>
         <div class="cab__ctas">
           <a class="btn btn--primario btn--grande" href="#formulario">Cuéntanos de tu evento <Icono nombre="flecha" /></a>
@@ -37,34 +37,13 @@ const ORGANIZADORES = ['Live Concerts Latam', 'LPC Producciones', 'Alpha Musik C
     </div>
   </section>
 
-  <section class="seccion" data-superficie="papel" aria-labelledby="beneficios">
-    <div class="contenedor">
-      <div class="cabecera-seccion">
-        <p class="antetitulo">Lo que obtienes</p>
-        <h2 id="beneficios" class="titulo-seccion">Tu boletería, en buenas manos</h2>
-      </div>
-      <ul class="beneficios">
-        {
-          beneficios.map((b) => (
-            <li>
-              <span class="beneficios__icono">
-                <Icono nombre={b.icono} />
-              </span>
-              <h3>{b.titulo}</h3>
-              <p>{b.texto}</p>
-            </li>
-          ))
-        }
-      </ul>
-    </div>
-  </section>
-
   <section class="seccion" data-superficie="blanco" id="formulario" aria-labelledby="form-titulo">
     <div class="contenedor form-rejilla">
       <div class="form-intro">
-        <p class="antetitulo">Formulario</p>
-        <h2 id="form-titulo" class="titulo-seccion">Cuéntanos de tu evento</h2>
-        <p class="entrada">Con estos datos revisamos tu evento y te contactamos. Entre más detalle, mejor.</p>
+                <h2 id="form-titulo" class="titulo-seccion">Cuéntanos de tu evento</h2>
+        <ul class="form-intro__puntos">
+          {beneficios.map((b) => <li><Icono nombre={b.icono} /> {b.titulo}</li>)}
+        </ul>
         <ul class="form-intro__datos">
           <li><Icono nombre="telefono" /> <a href={CONTACTO.telefonoFijo.href}>{CONTACTO.telefonoFijo.texto}</a></li>
           <li><Icono nombre="correo" /> <a href={CONTACTO.correo.href}>{CONTACTO.correo.texto}</a></li>
@@ -149,51 +128,6 @@ const ORGANIZADORES = ['Live Concerts Latam', 'LPC Producciones', 'Alpha Musik C
     padding: 8px 0;
     border-bottom: 1px solid var(--linea);
   }
-  .beneficios {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    gap: 16px;
-  }
-  @media (min-width: 720px) {
-    .beneficios {
-      grid-template-columns: 1fr 1fr;
-    }
-  }
-  @media (min-width: 1080px) {
-    .beneficios {
-      grid-template-columns: repeat(4, 1fr);
-    }
-  }
-  .beneficios li {
-    display: grid;
-    gap: 10px;
-    align-content: start;
-    padding: 24px;
-    background: var(--blanco);
-  }
-  .beneficios__icono {
-    display: inline-flex;
-    width: 48px;
-    height: 48px;
-    align-items: center;
-    justify-content: center;
-    background: var(--noche);
-    color: var(--naranja);
-    margin-bottom: 6px;
-  }
-  .beneficios__icono :global(svg) {
-    width: 24px;
-    height: 24px;
-  }
-  .beneficios h3 {
-    font-size: 1.375rem;
-    text-transform: uppercase;
-  }
-  .beneficios p {
-    color: var(--texto-2);
-  }
   .form-rejilla {
     display: grid;
     gap: 36px;
@@ -212,6 +146,25 @@ const ORGANIZADORES = ['Live Concerts Latam', 'LPC Producciones', 'Alpha Musik C
   .form-intro {
     display: grid;
     gap: 16px;
+  }
+  .form-intro__puntos {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+    font-weight: 700;
+  }
+  .form-intro__puntos li {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .form-intro__puntos :global(svg) {
+    width: 20px;
+    height: 20px;
+    color: var(--naranja-oscuro);
+    flex: none;
   }
   .form-intro__datos {
     list-style: none;
