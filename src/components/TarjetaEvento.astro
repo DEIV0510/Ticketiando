@@ -9,8 +9,10 @@ import { diaNum, mesCorto, diaSemanaCorto, finEfectivo } from '../lib/formato';
 interface Props {
   evento: Evento;
   nivel?: 'h2' | 'h3';
+  /** Primera tarjeta visible al cargar: imagen sin carga diferida. */
+  prioridad?: boolean;
 }
-const { evento: e, nivel = 'h3' } = Astro.props;
+const { evento: e, nivel = 'h3', prioridad = false } = Astro.props;
 const Titulo = nivel;
 const detalle = `/eventos/${e.slug}/`;
 const claves = `${e.titulo} ${e.ciudad} ${e.lugar} ${e.categoria} ${(e.artistas ?? []).join(' ')}`;
@@ -22,9 +24,10 @@ const claves = `${e.titulo} ${e.ciudad} ${e.lugar} ${e.categoria} ${(e.artistas 
       src={e.imagenes.banner}
       alt=""
       formats={['avif', 'webp']}
-      widths={[400, 640, 880]}
+      widths={[400, 560, 680, 880]}
       sizes="(min-width: 900px) 400px, 100vw"
-      loading="lazy"
+      loading={prioridad ? 'eager' : 'lazy'}
+      fetchpriority={prioridad ? 'high' : 'auto'}
       quality={70}
     />
     <span class="boleta__fecha">
@@ -119,6 +122,7 @@ const claves = `${e.titulo} ${e.ciudad} ${e.lugar} ${e.categoria} ${(e.artistas 
     font-size: 2rem;
     font-weight: 900;
     font-stretch: var(--muy-estrecha);
+    font-family: var(--fuente-68);
     margin: 2px 0;
   }
   .boleta__sem {
@@ -141,6 +145,7 @@ const claves = `${e.titulo} ${e.ciudad} ${e.lugar} ${e.categoria} ${(e.artistas 
     font-size: clamp(1.625rem, 2.6vw, 2.125rem);
     font-weight: 900;
     font-stretch: var(--muy-estrecha);
+    font-family: var(--fuente-68);
     text-transform: uppercase;
     line-height: 0.95;
   }

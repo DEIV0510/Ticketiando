@@ -59,7 +59,7 @@ const ciudades = [...new Set(proximos.map((e) => e.ciudad))];
     <div class="contenedor">
       <p class="lista__conteo" aria-live="polite" data-conteo></p>
       <div class="lista__rejilla" data-lista-proximos="#lista-vacia">
-        {proximos.map((e) => <TarjetaEvento evento={e} nivel="h2" />)}
+        {proximos.map((e, i) => <TarjetaEvento evento={e} nivel="h2" prioridad={i === 0} />)}
       </div>
       <div id="lista-vacia" class="vacio" hidden={proximos.length > 0}>
         <h2>No hay eventos con ese filtro</h2>

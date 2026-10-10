@@ -42,3 +42,11 @@ node scripts/legal.mjs   # vuelve a traer los textos legales de ticketiando.com
 ```
 
 `SITE_URL` define el dominio de las URL canónicas y de las imágenes para redes (por defecto `https://ticketiando.com`).
+
+## Calidad (10 de octubre de 2026)
+
+- Lighthouse móvil: rendimiento 95–100, accesibilidad 100, buenas prácticas 100, SEO 100. Escritorio: 100 en las cuatro.
+- CLS ≈ 0 (fuentes de respaldo medidas contra Archivo), sin desbordes horizontales de 320 a 1920 px.
+- 32 pruebas de interacción en navegador real: menú, buscador, filtros, carrusel (avance, pausa, movimiento reducido), etapa de precio vigente, formulario y datos estructurados.
+
+Capturas de antes y después en .

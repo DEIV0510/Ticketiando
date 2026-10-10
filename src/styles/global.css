@@ -39,6 +39,8 @@
   --fuente: 'Archivo', 'Archivo Fallback', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --estrecha: 78%;
   --muy-estrecha: 68%;
+  --fuente-78: 'Archivo', 'Archivo F78', 'Arial Narrow', sans-serif;
+  --fuente-68: 'Archivo', 'Archivo F68', 'Arial Narrow', sans-serif;
 
   --contenedor: 1240px;
   --margen: 20px;
@@ -58,13 +60,30 @@
   }
 }
 
-/* Fallback métrico para que el cambio de fuente no mueva el diseño */
+/* Fallbacks métricos: Arial ajustada al ancho real de Archivo en cada estiramiento (medido),
+   para que el texto no cambie de renglón cuando llega la fuente (CLS). */
 @font-face {
   font-family: 'Archivo Fallback';
   src: local('Arial');
-  size-adjust: 104%;
-  ascent-override: 88%;
-  descent-override: 21%;
+  size-adjust: 98%;
+  ascent-override: 92%;
+  descent-override: 22%;
+}
+@font-face {
+  font-family: 'Archivo F78';
+  src: local('Arial Bold'), local('Arial-BoldMT'), local('Arial');
+  font-weight: 600 900;
+  size-adjust: 84%;
+  ascent-override: 107%;
+  descent-override: 26%;
+}
+@font-face {
+  font-family: 'Archivo F68';
+  src: local('Arial Bold'), local('Arial-BoldMT'), local('Arial');
+  font-weight: 600 900;
+  size-adjust: 77%;
+  ascent-override: 117%;
+  descent-override: 28%;
 }
 
 [data-superficie='noche'] {
@@ -143,6 +162,7 @@ h4 {
   line-height: 1.05;
   font-weight: 800;
   font-stretch: var(--estrecha);
+  font-family: var(--fuente-78);
   letter-spacing: -0.01em;
   text-wrap: balance;
 }
@@ -244,6 +264,7 @@ button {
   font-size: clamp(2rem, 4.6vw, 3.4rem);
   font-weight: 850;
   font-stretch: var(--muy-estrecha);
+  font-family: var(--fuente-68);
   text-transform: uppercase;
   letter-spacing: -0.005em;
   line-height: 0.98;
@@ -467,6 +488,7 @@ button {
   font-size: 1.375rem;
   text-transform: uppercase;
   font-stretch: var(--estrecha);
+  font-family: var(--fuente-78);
 }
 
 .prosa ul,

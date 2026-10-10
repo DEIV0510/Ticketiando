@@ -125,7 +125,7 @@ const textoCompartir = `${e.titulo} · ${fechaLarga(e.inicio)} · ${e.lugar}, ${
             src={e.imagenes.banner}
             alt={e.imagenes.bannerAlt}
             formats={['avif', 'webp']}
-            widths={[480, 720, 960, 1280]}
+            widths={[480, 640, 760, 960, 1280]}
             sizes="(min-width: 1080px) 640px, 100vw"
             loading="eager"
             fetchpriority="high"
@@ -303,7 +303,7 @@ const textoCompartir = `${e.titulo} · ${fechaLarga(e.inicio)} · ${e.lugar}, ${
         <section class="bloque" aria-labelledby="afiche">
           <h2 id="afiche" class="bloque__titulo">Afiche oficial</h2>
           <div class="afiches">
-            <Picture src={e.imagenes.poster} alt={e.imagenes.posterAlt} formats={['avif', 'webp']} widths={[400, 700, 1000]} sizes="(min-width: 1080px) 380px, 100vw" loading="lazy" quality={72} fallbackFormat="jpg" />
+            <Picture src={e.imagenes.poster} alt={e.imagenes.posterAlt} formats={['avif', 'webp']} widths={[400, 560, 700, 1000]} sizes="(min-width: 1080px) 380px, 100vw" loading="lazy" quality={72} fallbackFormat="jpg" />
           </div>
         </section>
 
@@ -482,6 +482,7 @@ const textoCompartir = `${e.titulo} · ${fechaLarga(e.inicio)} · ${e.lugar}, ${
     font-size: clamp(2.5rem, 6.2vw, 4.5rem);
     font-weight: 900;
     font-stretch: var(--muy-estrecha);
+    font-family: var(--fuente-68);
     text-transform: uppercase;
     line-height: 0.92;
   }
@@ -564,6 +565,7 @@ const textoCompartir = `${e.titulo} · ${fechaLarga(e.inicio)} · ${e.lugar}, ${
     font-size: clamp(1.625rem, 2.6vw, 2.125rem);
     font-weight: 900;
     font-stretch: var(--muy-estrecha);
+    font-family: var(--fuente-68);
     text-transform: uppercase;
   }
   .bloque__nota {
@@ -590,6 +592,7 @@ const textoCompartir = `${e.titulo} · ${fechaLarga(e.inicio)} · ${e.lugar}, ${
     color: var(--blanco);
     font-weight: 800;
     font-stretch: var(--estrecha);
+    font-family: var(--fuente-78);
     text-transform: uppercase;
     font-size: 1.0625rem;
   }
@@ -620,6 +623,7 @@ const textoCompartir = `${e.titulo} · ${fechaLarga(e.inicio)} · ${e.lugar}, ${
     font-size: 1.5rem;
     font-weight: 900;
     font-stretch: var(--muy-estrecha);
+    font-family: var(--fuente-68);
     text-transform: uppercase;
   }
 
@@ -648,6 +652,7 @@ const textoCompartir = `${e.titulo} · ${fechaLarga(e.inicio)} · ${e.lugar}, ${
     font-size: 1.75rem;
     font-weight: 900;
     font-stretch: var(--muy-estrecha);
+    font-family: var(--fuente-68);
     text-transform: uppercase;
   }
   .tipo__cab p {
@@ -655,7 +660,6 @@ const textoCompartir = `${e.titulo} · ${fechaLarga(e.inicio)} · ${e.lugar}, ${
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    opacity: 0.9;
   }
   .tipo__etapas {
     list-style: none;
@@ -685,6 +689,7 @@ const textoCompartir = `${e.titulo} · ${fechaLarga(e.inicio)} · ${e.lugar}, ${
     font-size: 1.625rem;
     font-weight: 900;
     font-stretch: var(--estrecha);
+    font-family: var(--fuente-78);
   }
   .tipo__vig {
     display: none;
@@ -774,6 +779,7 @@ const textoCompartir = `${e.titulo} · ${fechaLarga(e.inicio)} · ${e.lugar}, ${
     font-size: 1.25rem;
     font-weight: 850;
     font-stretch: var(--estrecha);
+    font-family: var(--fuente-78);
     text-transform: uppercase;
   }
   .fila__nombre span {
@@ -839,14 +845,14 @@ const textoCompartir = `${e.titulo} · ${fechaLarga(e.inicio)} · ${e.lugar}, ${
   .info {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr));
-    gap: 1px;
     margin: 0;
-    background: var(--linea);
-    border: 1px solid var(--linea);
+    border-top: 1px solid var(--linea);
+    border-left: 1px solid var(--linea);
   }
   .info__item {
-    background: var(--blanco);
     padding: 14px 16px;
+    border-right: 1px solid var(--linea);
+    border-bottom: 1px solid var(--linea);
   }
   .info dt {
     display: flex;
@@ -969,6 +975,7 @@ const textoCompartir = `${e.titulo} · ${fechaLarga(e.inicio)} · ${e.lugar}, ${
     font-size: 1.875rem;
     font-weight: 900;
     font-stretch: var(--muy-estrecha);
+    font-family: var(--fuente-68);
     margin: 2px 0;
   }
   .compra__sem {
@@ -979,6 +986,7 @@ const textoCompartir = `${e.titulo} · ${fechaLarga(e.inicio)} · ${e.lugar}, ${
   .compra__titulo {
     font-weight: 850;
     font-stretch: var(--estrecha);
+    font-family: var(--fuente-78);
     text-transform: uppercase;
     font-size: 1.25rem;
     line-height: 1.05;

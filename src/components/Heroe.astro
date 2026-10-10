@@ -51,7 +51,7 @@ const n = eventos.length;
                   src={e.imagenes.banner}
                   alt=""
                   formats={['avif', 'webp']}
-                  widths={[480, 720, 960, 1280]}
+                  widths={[480, 640, 760, 960, 1280]}
                   sizes="(min-width: 1080px) 620px, (min-width: 768px) 90vw, 100vw"
                   loading={i === 0 ? 'eager' : 'lazy'}
                   fetchpriority={i === 0 ? 'high' : 'auto'}
@@ -265,6 +265,7 @@ const n = eventos.length;
     font-size: clamp(2.5rem, 6.4vw, 4.25rem);
     font-weight: 900;
     font-stretch: var(--muy-estrecha);
+    font-family: var(--fuente-68);
     text-transform: uppercase;
     line-height: 0.92;
     letter-spacing: -0.01em;
@@ -329,6 +330,23 @@ const n = eventos.length;
     grid-area: cuenta;
   }
   @media (max-width: 767.98px) {
+    .heroe {
+      padding-top: 10px;
+    }
+    .heroe__cabeza {
+      min-height: 32px;
+    }
+    .slide__in {
+      padding-top: 8px;
+      gap: 18px;
+    }
+    .slide__texto {
+      gap: 12px;
+    }
+    .slide__compra {
+      padding-top: 14px;
+      gap: 14px;
+    }
     .slide__bajada {
       display: none;
     }
@@ -569,8 +587,16 @@ const n = eventos.length;
       pausa.setAttribute('aria-pressed', 'true');
       if (pausaTxt) pausaTxt.textContent = 'Reproducir';
     }
-    raiz.addEventListener('pointerenter', (e) => e.pointerType === 'mouse' && pausarTemporal(true));
-    raiz.addEventListener('pointerleave', (e) => e.pointerType === 'mouse' && pausarTemporal(false));
+    // El héroe ocupa casi toda la pantalla: pausar solo cuando el puntero está sobre un enlace o botón
+    // (a punto de hacer clic), no por estar encima del héroe.
+    raiz.addEventListener('pointerover', (e) => {
+      if (e.pointerType === 'mouse' && (e.target as Element).closest('a, button')) pausarTemporal(true);
+    });
+    raiz.addEventListener('pointerout', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      const hacia = e.relatedTarget as Element | null;
+      if ((e.target as Element).closest('a, button') && !hacia?.closest?.('a, button')) pausarTemporal(false);
+    });
     raiz.addEventListener('focusin', () => pausarTemporal(true));
     raiz.addEventListener('focusout', (e) => {
       if (!raiz.contains(e.relatedTarget as Node)) pausarTemporal(false);

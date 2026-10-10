@@ -347,6 +347,7 @@ const indice = [
     font-size: 1.5rem;
     font-weight: 800;
     font-stretch: var(--estrecha);
+    font-family: var(--fuente-78);
     text-transform: uppercase;
     text-decoration: none;
     border-bottom: 1px solid var(--linea);
@@ -542,5 +543,12 @@ const indice = [
     );
   };
   input?.addEventListener('input', () => pintar(input.value));
+  // En un campo type=search, Esc solo borra el texto; aquí además cierra el buscador
+  input?.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Escape') {
+      ev.preventDefault();
+      (document.getElementById('buscador') as HTMLDialogElement).close();
+    }
+  });
   pintar('');
 </script>

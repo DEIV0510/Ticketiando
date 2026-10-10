@@ -66,11 +66,28 @@ const organizacion = {
     <Footer />
     <script>
       import '../scripts/vigencia.ts';
+
+      let pendiente = false;
+      const revisarFab = () => {
+        pendiente = false;
+        document.documentElement.classList.toggle('fab-visible', window.scrollY > window.innerHeight * 0.75);
+      };
+      window.addEventListener(
+        'scroll',
+        () => {
+          if (!pendiente) {
+            pendiente = true;
+            requestAnimationFrame(revisarFab);
+          }
+        },
+        { passive: true },
+      );
+      revisarFab();
     </script>
 
-    <a class="fab-wa" href={`${CONTACTO.whatsapp.href}?text=${encodeURIComponent('Hola Ticketiando, necesito ayuda con ')}`} target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp">
+    <a class="fab-wa" href={`${CONTACTO.whatsapp.href}?text=${encodeURIComponent('Hola Ticketiando, necesito ayuda con ')}`} target="_blank" rel="noopener" >
       <Icono nombre="whatsapp" />
-      <span>¿Ayuda?</span>
+      <span>¿Ayuda?</span><span class="sr-only"> Escríbenos por WhatsApp</span>
     </a>
 
     <style>
@@ -103,6 +120,20 @@ const organizacion = {
         width: 24px;
         height: 24px;
       }
+      /* En móvil aparece después de la primera pantalla: al abrir no tapa el botón de compra del héroe */
+      @media (max-width: 767.98px) {
+        .fab-wa {
+          transition: transform 0.25s var(--curva), opacity 0.25s var(--curva), visibility 0s linear 0.25s;
+        }
+        html:not(.fab-visible) .fab-wa {
+          opacity: 0;
+          visibility: hidden;
+          transform: translateY(12px);
+        }
+        html.fab-visible .fab-wa {
+          transition-delay: 0s;
+        }
+      }
       @media (max-width: 1023.98px) {
         .con-barra-compra .fab-wa {
           bottom: calc(96px + env(safe-area-inset-bottom));
@@ -110,7 +141,7 @@ const organizacion = {
           padding: 0;
           justify-content: center;
         }
-        .con-barra-compra .fab-wa span {
+        .con-barra-compra .fab-wa span:not(.sr-only) {
           display: none;
         }
       }
