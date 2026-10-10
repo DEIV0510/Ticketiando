@@ -49,4 +49,4 @@ node scripts/legal.mjs   # vuelve a traer los textos legales de ticketiando.com
 - CLS ≈ 0 (fuentes de respaldo medidas contra Archivo), sin desbordes horizontales de 320 a 1920 px.
 - 32 pruebas de interacción en navegador real: menú, buscador, filtros, carrusel (avance, pausa, movimiento reducido), etapa de precio vigente, formulario y datos estructurados.
 
-Capturas de antes y después en .
+Capturas de antes y después en `docs/capturas/`.
