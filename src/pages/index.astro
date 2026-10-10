@@ -1,0 +1,122 @@
+---
+import Base from '../layouts/Base.astro';
+import Heroe from '../components/Heroe.astro';
+import Confianza from '../components/Confianza.astro';
+import TarjetaEvento from '../components/TarjetaEvento.astro';
+import CompraSegura from '../components/CompraSegura.astro';
+import ComoComprar from '../components/ComoComprar.astro';
+import Realizados from '../components/Realizados.astro';
+import VendeBanda from '../components/VendeBanda.astro';
+import Preguntas from '../components/Preguntas.astro';
+import Icono from '../components/Icono.astro';
+import { EVENTOS } from '../data/eventos';
+import { FAQ, CONTACTO } from '../data/sitio';
+import { esProximo, ordenarPorFecha } from '../lib/formato';
+import { getImage } from 'astro:assets';
+
+const proximos = ordenarPorFecha(EVENTOS.filter((e) => esProximo(e)));
+const og = proximos[0] ? await getImage({ src: proximos[0].imagenes.banner, width: 1200, format: 'jpg', quality: 80 }) : null;
+---
+
+<Base
+  titulo="Ticketiando · Boletería oficial para conciertos, festivales y eventos"
+  descripcion="Compra boletas oficiales para conciertos, festivales, fiestas y shows familiares en Colombia. Pagos seguros con PSE y tarjeta, y atención por WhatsApp."
+  imagen={og?.src}
+>
+  {proximos.length > 0 ? <Heroe eventos={proximos} /> : null}
+
+  <Confianza />
+
+  <section class="proximos seccion" data-superficie="papel" aria-labelledby="proximos-titulo">
+    <div class="contenedor">
+      <div class="cabecera-seccion cabecera-seccion--fila">
+        <div>
+          <p class="antetitulo">Cartelera</p>
+          <h2 id="proximos-titulo" class="titulo-seccion">Próximos eventos</h2>
+        </div>
+        <a class="enlace-flecha" href="/eventos/">Ver todos los eventos <Icono nombre="flecha" /></a>
+      </div>
+
+      <div class="proximos__lista" data-lista-proximos="#proximos-vacio">
+        {proximos.map((e) => <TarjetaEvento evento={e} />)}
+      </div>
+
+      <div id="proximos-vacio" class="vacio" hidden={proximos.length > 0}>
+        <Icono nombre="calendario" />
+        <div>
+          <h3>Muy pronto, nuevos eventos</h3>
+          <p>
+            Síguenos en <a href={CONTACTO.instagram.href} target="_blank" rel="noopener">Instagram {CONTACTO.instagram.texto}</a> para enterarte primero de cada lanzamiento.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <CompraSegura />
+  <ComoComprar />
+  <Realizados />
+  <VendeBanda />
+
+  <section class="faq seccion" data-superficie="papel" aria-labelledby="faq-titulo">
+    <div class="contenedor faq__rejilla">
+      <div class="faq__intro">
+        <p class="antetitulo">Ayuda</p>
+        <h2 id="faq-titulo" class="titulo-seccion">Preguntas frecuentes</h2>
+        <p class="entrada">Respuestas basadas en nuestras políticas publicadas. ¿Te quedó alguna duda?</p>
+        <a class="btn btn--noche" href={CONTACTO.whatsapp.href} target="_blank" rel="noopener"><Icono nombre="whatsapp" /> Escríbenos</a>
+      </div>
+      <Preguntas preguntas={FAQ} abrirPrimera />
+    </div>
+  </section>
+</Base>
+
+<style>
+  .proximos__lista {
+    display: grid;
+    gap: 22px;
+  }
+  .vacio {
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+    padding: 28px;
+    background: var(--blanco);
+    border: 1px dashed var(--linea-fuerte);
+  }
+  .vacio :global(svg) {
+    width: 32px;
+    height: 32px;
+    color: var(--naranja-oscuro);
+    flex: none;
+  }
+  .vacio h3 {
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .vacio a {
+    color: var(--acento-texto);
+    font-weight: 700;
+  }
+  .faq__rejilla {
+    display: grid;
+    gap: 32px;
+  }
+  .faq__intro {
+    display: grid;
+    gap: 16px;
+    align-content: start;
+    justify-items: start;
+  }
+  @media (min-width: 1080px) {
+    .faq__rejilla {
+      grid-template-columns: 0.8fr 1.2fr;
+      gap: 72px;
+    }
+    .faq__intro {
+      position: sticky;
+      top: calc(var(--alto-header) + 32px);
+    }
+  }
+</style>

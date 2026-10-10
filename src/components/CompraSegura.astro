@@ -1,0 +1,186 @@
+---
+import Icono from './Icono.astro';
+import { CANALES_OFICIALES, SENALES_ESTAFA } from '../data/sitio';
+
+interface Props {
+  nivel?: 'h1' | 'h2';
+}
+const { nivel = 'h2' } = Astro.props;
+const Titulo = nivel;
+---
+
+<section class="seguro seccion" data-superficie="noche" id="compra-segura" aria-labelledby="seguro-titulo">
+  <div class="contenedor seguro__rejilla">
+    <div class="seguro__intro">
+      <p class="antetitulo">Compra segura</p>
+      <Titulo id="seguro-titulo" class="titulo-seccion">Que nadie te robe la ilusión</Titulo>
+      <p class="entrada">
+        Hay cuentas y páginas falsas que copian el nombre y el logo de Ticketiando. Compra solo por estos canales y, si algo no te cuadra, escríbenos antes de pagar.
+      </p>
+
+      <div class="seguro__canales">
+        <h3>Canales oficiales</h3>
+        <ul>
+          {
+            CANALES_OFICIALES.map((c) => (
+              <li>
+                <span class="seguro__check">
+                  <Icono nombre="check" />
+                </span>
+                <span class="seguro__canal">{c.canal}</span>
+                <a href={c.href} {...(c.href.startsWith('http') ? { target: '_blank', rel: 'noopener' } : {})}>
+                  {c.valor}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+
+    <ol class="seguro__senales" aria-label="Señales de estafa">
+      {
+        SENALES_ESTAFA.map((s, i) => (
+          <li>
+            <span class="seguro__num num">{String(i + 1).padStart(2, '0')}</span>
+            <div>
+              <h3>
+                <Icono nombre="alerta" /> {s.titulo}
+              </h3>
+              <p>{s.texto}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .seguro {
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(60% 80% at 100% 0%, rgb(255 81 0 / 0.16), transparent 60%),
+      var(--noche);
+  }
+  .seguro__rejilla {
+    display: grid;
+    gap: 40px;
+  }
+  @media (min-width: 1080px) {
+    .seguro__rejilla {
+      grid-template-columns: 1fr 1fr;
+      gap: 72px;
+      align-items: start;
+    }
+  }
+  .seguro__intro {
+    display: grid;
+    gap: 18px;
+  }
+  .seguro__canales {
+    margin-top: 12px;
+    padding: 22px;
+    border: 1px solid var(--linea-fuerte);
+    background: rgb(255 255 255 / 0.03);
+  }
+  .seguro__canales h3 {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    font-stretch: 100%;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--naranja-claro);
+    margin-bottom: 10px;
+  }
+  .seguro__canales ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+  }
+  .seguro__canales li {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 2px 12px;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--linea);
+  }
+  .seguro__canales li:last-child {
+    border-bottom: 0;
+  }
+  .seguro__check {
+    grid-row: span 2;
+    display: inline-flex;
+    width: 28px;
+    height: 28px;
+    align-items: center;
+    justify-content: center;
+    background: var(--verde);
+    color: #fff;
+  }
+  .seguro__check :global(svg) {
+    width: 16px;
+    height: 16px;
+  }
+  .seguro__canal {
+    font-size: 0.8125rem;
+    color: var(--texto-2);
+  }
+  .seguro__canales a {
+    font-weight: 750;
+    font-size: 1.0625rem;
+    text-decoration: none;
+    justify-self: start;
+    min-height: 28px;
+    display: inline-flex;
+    align-items: center;
+  }
+  .seguro__canales a:hover {
+    color: var(--naranja-claro);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .seguro__senales {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 12px;
+  }
+  .seguro__senales li {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 18px;
+    padding: 22px;
+    background: var(--blanco);
+    color: var(--tinta);
+  }
+  .seguro__num {
+    font-size: 2.5rem;
+    font-weight: 900;
+    font-stretch: var(--muy-estrecha);
+    line-height: 0.9;
+    color: var(--naranja-oscuro);
+  }
+  .seguro__senales h3 {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 1.25rem;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .seguro__senales h3 :global(svg) {
+    width: 20px;
+    height: 20px;
+    color: var(--naranja-oscuro);
+    flex: none;
+  }
+  .seguro__senales p {
+    color: var(--tinta-2);
+  }
+</style>

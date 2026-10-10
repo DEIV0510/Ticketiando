@@ -1,0 +1,163 @@
+---
+import Base from '../layouts/Base.astro';
+import Icono from '../components/Icono.astro';
+import FormularioWhatsApp from '../components/FormularioWhatsApp.astro';
+import { CONTACTO, EMPRESA } from '../data/sitio';
+
+const datos = [
+  { icono: 'whatsapp' as const, titulo: 'WhatsApp y servicio al cliente', valor: CONTACTO.whatsapp.texto, href: CONTACTO.whatsapp.href },
+  { icono: 'telefono' as const, titulo: 'Teléfono fijo', valor: CONTACTO.telefonoFijo.texto, href: CONTACTO.telefonoFijo.href },
+  { icono: 'correo' as const, titulo: 'Correo', valor: CONTACTO.correo.texto, href: CONTACTO.correo.href },
+  { icono: 'instagram' as const, titulo: 'Instagram', valor: CONTACTO.instagram.texto, href: CONTACTO.instagram.href },
+];
+const mapa = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('Calle 49 Sur 45A-300 S48 Tower');
+---
+
+<Base titulo="Contacto" descripcion="Escríbenos por WhatsApp al 322 386 7112, llámanos al (604) 475 0867 o escribe a ticketiando@gmail.com.">
+  <section class="cab" data-superficie="noche">
+    <div class="contenedor">
+      <p class="antetitulo">Contacto</p>
+      <h1 class="titulo-seccion cab__titulo">Estamos para ti</h1>
+      <p class="entrada">Antes de comprar o después: escríbenos por nuestros canales oficiales.</p>
+    </div>
+  </section>
+
+  <section class="seccion" data-superficie="papel" aria-label="Datos de contacto y formulario">
+    <div class="contenedor rejilla">
+      <div class="datos">
+        <ul>
+          {
+            datos.map((d) => (
+              <li>
+                <a href={d.href} {...(d.href.startsWith('http') ? { target: '_blank', rel: 'noopener' } : {})}>
+                  <span class="datos__icono">
+                    <Icono nombre={d.icono} />
+                  </span>
+                  <span>
+                    <span class="datos__titulo">{d.titulo}</span>
+                    <strong>{d.valor}</strong>
+                  </span>
+                </a>
+              </li>
+            ))
+          }
+          <li>
+            <a href={mapa} target="_blank" rel="noopener">
+              <span class="datos__icono"><Icono nombre="ubicacion" /></span>
+              <span>
+                <span class="datos__titulo">Oficina</span>
+                <strong class="datos__dir">{EMPRESA.direccion}</strong>
+              </span>
+            </a>
+          </li>
+        </ul>
+      </div>
+      <div class="caja">
+        <h2 class="caja__titulo">Escríbenos</h2>
+        <FormularioWhatsApp
+          id="contacto"
+          encabezadoMensaje="Hola Ticketiando:"
+          textoBoton="Enviar por WhatsApp"
+          campos={[
+            { nombre: 'nombre', etiqueta: 'Nombre', requerido: true, autocompletar: 'name' },
+            { nombre: 'correo', etiqueta: 'Correo electrónico', tipo: 'email', autocompletar: 'email' },
+            { nombre: 'asunto', etiqueta: 'Tema', tipo: 'select', opciones: ['Compra de boletas', 'Cambio o devolución', 'Vender mi evento', 'Reportar una posible estafa', 'Otro'], ancho: 'completo' },
+            { nombre: 'mensaje', etiqueta: 'Mensaje', tipo: 'textarea', requerido: true },
+          ]}
+        />
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .cab {
+    padding: clamp(40px, 7vw, 88px) 0 clamp(32px, 5vw, 56px);
+    background:
+      radial-gradient(60% 120% at 100% 0%, rgb(255 81 0 / 0.18), transparent 60%),
+      var(--noche);
+  }
+  .cab .contenedor {
+    display: grid;
+    gap: 14px;
+  }
+  .cab__titulo {
+    font-size: clamp(2.75rem, 7vw, 5.5rem);
+  }
+  .rejilla {
+    display: grid;
+    gap: 28px;
+  }
+  @media (min-width: 1080px) {
+    .rejilla {
+      grid-template-columns: 0.9fr 1.3fr;
+      gap: 48px;
+      align-items: start;
+    }
+  }
+  .datos ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+  }
+  .datos a {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    padding: 16px 18px;
+    background: var(--blanco);
+    text-decoration: none;
+    border-left: 4px solid transparent;
+    transition: border-color 0.18s;
+  }
+  .datos a:hover {
+    border-left-color: var(--naranja);
+  }
+  .datos__icono {
+    display: inline-flex;
+    width: 44px;
+    height: 44px;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    background: var(--noche);
+    color: var(--naranja);
+  }
+  .datos__icono :global(svg) {
+    width: 22px;
+    height: 22px;
+  }
+  .datos__titulo {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--texto-2);
+  }
+  .datos strong {
+    font-size: 1.25rem;
+    font-weight: 850;
+    font-stretch: var(--estrecha);
+  }
+  .datos__dir {
+    font-size: 1.0625rem !important;
+    font-stretch: 100% !important;
+    font-weight: 700 !important;
+    line-height: 1.35;
+  }
+  .caja {
+    background: var(--blanco);
+    padding: clamp(22px, 3vw, 36px);
+    display: grid;
+    gap: 12px;
+  }
+  .caja__titulo {
+    font-size: 2rem;
+    font-weight: 900;
+    font-stretch: var(--muy-estrecha);
+    text-transform: uppercase;
+  }
+</style>

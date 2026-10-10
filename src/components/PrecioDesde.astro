@@ -1,0 +1,76 @@
+---
+// «Desde $X» según la etapa vigente. Se resuelve al construir y se corrige en el navegador
+// (scripts/vigencia.ts) para que el precio cambie solo cuando cambia la etapa, sin volver a publicar.
+import type { Evento } from '../data/eventos';
+import { desdeEnEtapa, etapaVigente, limitesEtapa, pesos } from '../lib/formato';
+
+interface Props {
+  evento: Evento;
+  class?: string;
+  conEtapa?: boolean;
+}
+const { evento: e, class: clase, conEtapa = true } = Astro.props;
+const vigente = etapaVigente(e);
+const nota = e.precioModo === 'servicio-incluido' ? 'servicio incluido' : 'valor total con servicio';
+---
+
+<div class:list={['precio-desde', clase]} data-etapas>
+  {
+    e.etapas.map((et, i) => {
+      const l = limitesEtapa(et.desde, et.hasta);
+      const desde = desdeEnEtapa(e, i);
+      return (
+        <p data-etapa data-d={l.desde} data-h={l.hasta} hidden={i !== vigente}>
+          <span class="precio-desde__lbl">Desde</span>
+          <strong class="precio-desde__valor num">{desde ? pesos(desde) : 'Consultar'}</strong>
+          <span class="precio-desde__nota">{nota}</span>
+          {conEtapa && <span class="precio-desde__etapa">{et.nombre}</span>}
+        </p>
+      );
+    })
+  }
+  <p data-etapa-ninguna hidden={vigente !== -1}>
+    <span class="precio-desde__lbl">Precios</span>
+    <strong class="precio-desde__valor precio-desde__valor--texto">En la plataforma de venta</strong>
+    <span class="precio-desde__nota">consulta el valor vigente al comprar</span>
+  </p>
+</div>
+
+<style>
+  .precio-desde p {
+    display: grid;
+    gap: 2px;
+  }
+  .precio-desde__lbl {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--texto-2);
+  }
+  .precio-desde__valor {
+    font-size: clamp(1.75rem, 3vw, 2.25rem);
+    font-weight: 850;
+    font-stretch: var(--estrecha);
+    line-height: 1;
+    letter-spacing: -0.01em;
+  }
+  .precio-desde__valor--texto {
+    font-size: 1.25rem;
+  }
+  .precio-desde__nota {
+    font-size: 0.8125rem;
+    color: var(--texto-2);
+  }
+  .precio-desde__etapa {
+    justify-self: start;
+    margin-top: 6px;
+    padding: 3px 8px;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border: 1px solid var(--linea-fuerte);
+    color: var(--texto);
+  }
+</style>

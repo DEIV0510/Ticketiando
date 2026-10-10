@@ -1,0 +1,26 @@
+---
+// Logo registrado: se usa tal cual (blanco), siempre sobre fondo azul noche u oscuro.
+import { Image } from 'astro:assets';
+import logo from '../assets/marca/logo.png';
+
+interface Props {
+  ancho: number;
+  prioridad?: boolean;
+  class?: string;
+}
+const { ancho, prioridad = false, class: clase } = Astro.props;
+const alto = Math.round((ancho * logo.height) / logo.width);
+---
+
+<Image
+  src={logo}
+  alt="Ticketiando, tu boleto a la mano"
+  width={ancho}
+  height={alto}
+  densities={[1, 2]}
+  format="webp"
+  quality={90}
+  loading={prioridad ? 'eager' : 'lazy'}
+  fetchpriority={prioridad ? 'high' : undefined}
+  class={clase}
+/>

@@ -1,0 +1,206 @@
+---
+// Formulario que arma un mensaje y lo abre en WhatsApp con el número oficial.
+// Validación al enviar; el error se limpia al escribir (no en blur, para no mover el botón bajo el dedo).
+import Icono from './Icono.astro';
+import { CONTACTO } from '../data/sitio';
+
+export interface Campo {
+  nombre: string;
+  etiqueta: string;
+  tipo?: 'text' | 'email' | 'tel' | 'number' | 'date' | 'textarea' | 'select';
+  requerido?: boolean;
+  autocompletar?: string;
+  ayuda?: string;
+  opciones?: string[];
+  ancho?: 'medio' | 'completo';
+}
+
+interface Props {
+  id: string;
+  campos: Campo[];
+  encabezadoMensaje: string;
+  textoBoton: string;
+}
+const { id, campos, encabezadoMensaje, textoBoton } = Astro.props;
+---
+
+<form class="form" id={id} novalidate data-form-wa={CONTACTO.whatsapp.numero} data-encabezado={encabezadoMensaje}>
+  <p class="form__nota">Los campos con <span aria-hidden="true">*</span><span class="sr-only">asterisco</span> son obligatorios.</p>
+  <div class="form__rejilla">
+    {
+      campos.map((c) => {
+        const idc = `${id}-${c.nombre}`;
+        const describe = [c.ayuda ? `${idc}-ayuda` : '', `${idc}-error`].filter(Boolean).join(' ');
+        return (
+          <div class:list={['campo', { 'campo--completo': c.ancho === 'completo' || c.tipo === 'textarea' }]}>
+            <label for={idc}>
+              {c.etiqueta}
+              {c.requerido && <span class="campo__req" aria-hidden="true"> *</span>}
+            </label>
+            {c.tipo === 'textarea' ? (
+              <textarea id={idc} name={c.nombre} rows="5" required={c.requerido} aria-describedby={describe} data-etiqueta={c.etiqueta} />
+            ) : c.tipo === 'select' ? (
+              <select id={idc} name={c.nombre} required={c.requerido} aria-describedby={describe} data-etiqueta={c.etiqueta}>
+                <option value="">Selecciona…</option>
+                {c.opciones?.map((o) => (
+                  <option>{o}</option>
+                ))}
+              </select>
+            ) : (
+              <input
+                id={idc}
+                name={c.nombre}
+                type={c.tipo ?? 'text'}
+                required={c.requerido}
+                autocomplete={c.autocompletar}
+                inputmode={c.tipo === 'number' ? 'numeric' : undefined}
+                aria-describedby={describe}
+                data-etiqueta={c.etiqueta}
+              />
+            )}
+            {c.ayuda && (
+              <p class="campo__ayuda" id={`${idc}-ayuda`}>
+                {c.ayuda}
+              </p>
+            )}
+            <p class="campo__error" id={`${idc}-error`} role="alert" />
+          </div>
+        );
+      })
+    }
+  </div>
+  <div class="form__pie">
+    <button type="submit" class="btn btn--primario btn--grande"><Icono nombre="whatsapp" /> {textoBoton}</button>
+    <p>Se abrirá WhatsApp con tu mensaje listo para enviar al {CONTACTO.whatsapp.texto}. También puedes escribir a <a href={CONTACTO.correo.href}>{CONTACTO.correo.texto}</a>.</p>
+  </div>
+</form>
+
+<style>
+  .form {
+    display: grid;
+    gap: 18px;
+  }
+  .form__nota {
+    font-size: 0.875rem;
+    color: var(--texto-2);
+  }
+  .form__rejilla {
+    display: grid;
+    gap: 16px 20px;
+  }
+  @media (min-width: 720px) {
+    .form__rejilla {
+      grid-template-columns: 1fr 1fr;
+    }
+    .campo--completo {
+      grid-column: 1 / -1;
+    }
+  }
+  .campo {
+    display: grid;
+    gap: 6px;
+    align-content: start;
+  }
+  label {
+    font-weight: 700;
+    font-size: 0.9375rem;
+  }
+  .campo__req {
+    color: var(--naranja-oscuro);
+  }
+  input,
+  select,
+  textarea {
+    width: 100%;
+    min-height: 52px;
+    padding: 12px 14px;
+    font-size: 1rem;
+    background: var(--blanco);
+    color: var(--tinta);
+    border: 1px solid var(--linea-fuerte);
+    border-radius: 0;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  textarea {
+    resize: vertical;
+    min-height: 140px;
+  }
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--noche);
+    box-shadow: 0 0 0 3px rgb(255 81 0 / 0.45);
+  }
+  [aria-invalid='true'] {
+    border-color: #b42318;
+    box-shadow: inset 4px 0 0 #b42318;
+  }
+  .campo__ayuda {
+    font-size: 0.8125rem;
+    color: var(--texto-2);
+  }
+  .campo__error {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #b42318;
+    min-height: 0;
+  }
+  .campo__error:empty {
+    display: none;
+  }
+  .form__pie {
+    display: grid;
+    gap: 12px;
+    justify-items: start;
+  }
+  .form__pie p {
+    font-size: 0.875rem;
+    color: var(--texto-2);
+    max-width: 60ch;
+  }
+  .form__pie a {
+    color: var(--acento-texto);
+    font-weight: 700;
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLFormElement>('[data-form-wa]').forEach((form) => {
+    const campos = [...form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>('input, textarea, select')];
+    const errorDe = (c: Element) => document.getElementById(`${c.id}-error`);
+    const validar = (c: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement) => {
+      const v = c.value.trim();
+      let msg = '';
+      if (c.required && !v) msg = `Escribe ${c.dataset.etiqueta?.toLowerCase()}.`;
+      else if (c.type === 'email' && v && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) msg = 'Revisa el correo: debe verse como nombre@correo.com.';
+      else if (c.type === 'tel' && v && v.replace(/\D/g, '').length < 7) msg = 'Revisa el número: faltan dígitos.';
+      const e = errorDe(c);
+      if (e) e.textContent = msg;
+      c.setAttribute('aria-invalid', String(!!msg));
+      return !msg;
+    };
+    campos.forEach((c) =>
+      c.addEventListener('input', () => {
+        if (c.getAttribute('aria-invalid') === 'true') {
+          c.setAttribute('aria-invalid', 'false');
+          const e = errorDe(c);
+          if (e) e.textContent = '';
+        }
+      }),
+    );
+    form.addEventListener('submit', (ev) => {
+      ev.preventDefault();
+      const invalidos = campos.filter((c) => !validar(c));
+      if (invalidos.length) {
+        invalidos[0].focus();
+        return;
+      }
+      const lineas = campos.filter((c) => c.value.trim()).map((c) => `• ${c.dataset.etiqueta}: ${c.value.trim()}`);
+      const texto = `${form.dataset.encabezado}\n\n${lineas.join('\n')}`;
+      const url = `https://wa.me/${form.dataset.formWa}?text=${encodeURIComponent(texto)}`;
+      const w = window.open(url, '_blank');
+      if (!w) location.href = url;
+    });
+  });
+</script>

@@ -1,0 +1,76 @@
+---
+import type { Evento } from '../data/eventos';
+import { finEfectivo } from '../lib/formato';
+
+interface Props {
+  evento: Evento;
+  class?: string;
+}
+const { evento: e, class: clase } = Astro.props;
+const inicio = new Date(e.inicio).getTime();
+const resta = Math.max(0, inicio - Date.now());
+const d = Math.floor(resta / 86_400_000);
+const h = Math.floor((resta % 86_400_000) / 3_600_000);
+const m = Math.floor((resta % 3_600_000) / 60_000);
+const dos = (n: number) => String(n).padStart(2, '0');
+---
+
+<div class:list={['cuenta', clase]} data-cuenta={inicio} data-cuenta-fin={finEfectivo(e).getTime()} role="timer" aria-label={`Cuenta regresiva para ${e.titulo}`}>
+  <p class="cuenta__lbl">Faltan</p>
+  <ul>
+    <li><span class="num" data-u="d">{d}</span><small>días</small></li>
+    <li><span class="num" data-u="h">{dos(h)}</span><small>horas</small></li>
+    <li><span class="num" data-u="m">{dos(m)}</span><small>min</small></li>
+    <li><span class="num" data-u="s">00</span><small>seg</small></li>
+  </ul>
+  <p class="cuenta__estado" data-estado hidden></p>
+</div>
+
+<style>
+  .cuenta {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .cuenta__lbl {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--texto-2);
+  }
+  ul {
+    display: flex;
+    gap: 6px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  li {
+    display: grid;
+    justify-items: center;
+    min-width: 54px;
+    padding: 8px 6px 6px;
+    border: 1px solid var(--linea-fuerte);
+    background: rgb(255 255 255 / 0.04);
+  }
+  span {
+    font-size: 1.5rem;
+    font-weight: 800;
+    font-stretch: var(--estrecha);
+    line-height: 1;
+  }
+  small {
+    margin-top: 4px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--texto-2);
+  }
+  .cuenta__estado {
+    font-weight: 700;
+    color: var(--naranja-claro);
+  }
+</style>

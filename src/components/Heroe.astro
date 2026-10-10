@@ -1,0 +1,594 @@
+---
+import { Picture } from 'astro:assets';
+import Icono from './Icono.astro';
+import PrecioDesde from './PrecioDesde.astro';
+import Cuenta from './Cuenta.astro';
+import type { Evento } from '../data/eventos';
+import { fechaMedia, finEfectivo } from '../lib/formato';
+
+interface Props {
+  eventos: Evento[];
+}
+const { eventos } = Astro.props;
+const n = eventos.length;
+---
+
+<section class="heroe" data-superficie="noche" aria-roledescription="carrusel" aria-label="Eventos destacados" data-carrusel>
+  <div class="contenedor heroe__cabeza">
+    <h1 class="heroe__h1">Boletería oficial <span>· Tu boleto a la mano</span></h1>
+    {
+      n > 1 && (
+        <div class="heroe__flechas">
+          <button type="button" class="heroe__flecha" data-anterior aria-label="Evento anterior">
+            <Icono nombre="izquierda" />
+          </button>
+          <button type="button" class="heroe__flecha" data-siguiente aria-label="Evento siguiente">
+            <Icono nombre="derecha" />
+          </button>
+        </div>
+      )
+    }
+  </div>
+
+  <div class="heroe__pista">
+    {
+      eventos.map((e, i) => {
+        const detalle = `/eventos/${e.slug}/`;
+        return (
+          <article
+            class:list={['slide', { 'es-activa': i === 0 }]}
+            id={`destacado-${i}`}
+            aria-roledescription="diapositiva"
+            aria-label={`${i + 1} de ${n}: ${e.titulo}`}
+            inert={i !== 0 ? true : undefined}
+            data-slide
+            data-fin={finEfectivo(e).getTime()}
+          >
+            <div class="slide__fondo" style={`background-image:url(/img/fondo-${e.slug}.webp)`} aria-hidden="true" />
+            <div class="contenedor slide__in">
+              <a class="slide__arte" href={detalle} tabindex="-1" aria-hidden="true">
+                <Picture
+                  src={e.imagenes.banner}
+                  alt=""
+                  formats={['avif', 'webp']}
+                  widths={[480, 720, 960, 1280]}
+                  sizes="(min-width: 1080px) 620px, (min-width: 768px) 90vw, 100vw"
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                  fetchpriority={i === 0 ? 'high' : 'auto'}
+                  quality={72}
+                />
+                <span class="slide__sello">
+                  <Icono nombre="escudo" /> Boletería oficial · PULEP {e.pulep}
+                </span>
+              </a>
+
+              <div class="slide__texto">
+                <div class="slide__chips">
+                  <span class="chip chip--venta">En venta</span>
+                  <span class="chip">{e.categoria}</span>
+                </div>
+                <h2 class="slide__titulo">
+                  <a href={detalle}>{e.titulo}</a>
+                </h2>
+                <p class="slide__bajada">{e.bajada}</p>
+                <ul class="slide__meta">
+                  <li>
+                    <Icono nombre="calendario" />
+                    <span class="primera-mayus">{fechaMedia(e.inicio)}</span>
+                  </li>
+                  <li>
+                    <Icono nombre="reloj" />
+                    {e.horario}
+                  </li>
+                  <li>
+                    <Icono nombre="ubicacion" />
+                    {e.lugar}, {e.ciudad}
+                  </li>
+                </ul>
+                <div class="slide__compra">
+                  <PrecioDesde evento={e} />
+                  <div class="slide__ctas">
+                    <a class="btn btn--primario btn--grande" href={e.compraUrl} target="_blank" rel="noopener">
+                      <Icono nombre="boleta" /> Comprar boletas
+                    </a>
+                    <a class="btn btn--contorno btn--grande" href={detalle}>
+                      Ver detalles
+                    </a>
+                  </div>
+                  <Cuenta evento={e} class="slide__cuenta" />
+                </div>
+              </div>
+            </div>
+          </article>
+        );
+      })
+    }
+  </div>
+
+  {
+    n > 1 && (
+      <div class="contenedor heroe__pestanas">
+        <div class="pestanas" role="group" aria-label="Elegir evento destacado">
+          {eventos.map((e, i) => (
+            <button type="button" class="pestana" data-ir={i} aria-controls={`destacado-${i}`} aria-current={i === 0 ? 'true' : undefined}>
+              <span class="pestana__num num">{String(i + 1).padStart(2, '0')}</span>
+              <span class="pestana__nombre">{e.titulo}</span>
+              <span class="pestana__barra" aria-hidden="true">
+                <span />
+              </span>
+            </button>
+          ))}
+        </div>
+        <button type="button" class="pausa" data-pausa aria-pressed="false">
+          <span class="pausa__icono" aria-hidden="true" />
+          <span data-pausa-txt>Pausar</span>
+        </button>
+      </div>
+    )
+  }
+</section>
+
+<style>
+  .heroe {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    padding: 18px 0 0;
+  }
+  .heroe__cabeza {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 44px;
+  }
+  .heroe__h1 {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    font-stretch: 100%;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--naranja-claro);
+    line-height: 1.3;
+  }
+  .heroe__h1 span {
+    color: var(--texto-2);
+  }
+  .heroe__flechas {
+    display: none;
+    gap: 6px;
+  }
+  .heroe__flecha {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: transparent;
+    border: 1px solid var(--linea-fuerte);
+    color: var(--texto);
+    transition: background-color 0.18s, border-color 0.18s;
+  }
+  .heroe__flecha:hover {
+    background: rgb(255 255 255 / 0.08);
+    border-color: var(--texto);
+  }
+  .heroe__flecha :global(svg) {
+    width: 22px;
+    height: 22px;
+  }
+
+  .heroe__pista {
+    display: grid;
+  }
+  .slide {
+    grid-area: 1 / 1;
+    position: relative;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.6s var(--curva), visibility 0s linear 0.6s;
+  }
+  .slide.es-activa {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.6s var(--curva), visibility 0s;
+    z-index: 1;
+  }
+  .slide__fondo {
+    position: absolute;
+    inset: -60px -10% -10%;
+    z-index: -1;
+    background-size: cover;
+    background-position: center;
+    opacity: 0.85;
+  }
+  .slide__fondo::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgb(0 10 50 / 0.55) 0%, rgb(0 10 50 / 0.82) 55%, var(--noche) 100%),
+      radial-gradient(120% 80% at 80% 20%, transparent 0%, rgb(0 10 50 / 0.6) 70%);
+  }
+  .slide__in {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+    padding-top: 14px;
+    padding-bottom: 28px;
+  }
+  .slide__arte {
+    position: relative;
+    display: block;
+    box-shadow: 0 30px 60px -20px rgb(0 0 0 / 0.65);
+    outline: 1px solid rgb(255 255 255 / 0.16);
+    outline-offset: -1px;
+  }
+  .slide__arte :global(img) {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+  .slide__sello {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 10px;
+    background: rgb(0 6 31 / 0.88);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .slide__sello :global(svg) {
+    width: 14px;
+    height: 14px;
+    color: var(--naranja);
+  }
+  .slide__texto {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+    align-content: start;
+  }
+  .slide__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .slide__titulo {
+    font-size: clamp(2.5rem, 6.4vw, 4.25rem);
+    font-weight: 900;
+    font-stretch: var(--muy-estrecha);
+    text-transform: uppercase;
+    line-height: 0.92;
+    letter-spacing: -0.01em;
+  }
+  .slide__titulo a {
+    text-decoration: none;
+  }
+  .slide__titulo a:hover {
+    color: var(--naranja-claro);
+  }
+  .slide__bajada {
+    font-size: 1.0625rem;
+    color: var(--texto-2);
+    max-width: 52ch;
+  }
+  .slide__meta {
+    display: grid;
+    gap: 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-weight: 600;
+  }
+  .slide__meta li {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    line-height: 1.35;
+  }
+  .slide__meta :global(svg) {
+    width: 20px;
+    height: 20px;
+    flex: none;
+    color: var(--naranja);
+  }
+  .primera-mayus::first-letter {
+    text-transform: uppercase;
+  }
+  .slide__compra {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'precio' 'ctas' 'cuenta';
+    gap: 16px;
+    padding-top: 18px;
+    border-top: 1px solid var(--linea);
+  }
+  .slide__ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .slide__ctas .btn {
+    flex: 1 1 auto;
+  }
+  .slide__compra > :global(.precio-desde) {
+    grid-area: precio;
+  }
+  .slide__ctas {
+    grid-area: ctas;
+  }
+  .slide__cuenta {
+    grid-area: cuenta;
+  }
+  @media (max-width: 767.98px) {
+    .slide__bajada {
+      display: none;
+    }
+    .heroe__h1 span {
+      display: none;
+    }
+  }
+  @media (min-width: 560px) {
+    .slide__compra {
+      grid-template-columns: auto 1fr;
+      grid-template-areas: 'precio cuenta' 'ctas ctas';
+      align-items: end;
+      column-gap: 32px;
+    }
+    .slide__cuenta {
+      justify-self: end;
+    }
+  }
+
+
+  @media (min-width: 1080px) {
+    .heroe {
+      padding-top: 28px;
+    }
+    .heroe__flechas {
+      display: flex;
+    }
+    .slide__in {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+      gap: 56px;
+      align-items: center;
+      padding-top: 24px;
+      padding-bottom: 40px;
+      min-height: 560px;
+    }
+    .slide__arte {
+      order: 2;
+    }
+    .slide__ctas .btn {
+      flex: 0 1 auto;
+    }
+  }
+
+  .heroe__pestanas {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: stretch;
+    gap: 12px;
+    padding-bottom: 28px;
+  }
+  .pestanas {
+    flex: 1;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    gap: 12px;
+    min-width: 0;
+  }
+  .pestana {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 4px 10px;
+    min-height: 56px;
+    padding: 10px 0 0;
+    background: transparent;
+    border: 0;
+    text-align: left;
+    color: var(--texto-2);
+  }
+  .pestana[aria-current='true'] {
+    color: var(--blanco);
+  }
+  .pestana__num {
+    font-weight: 800;
+    font-size: 0.8125rem;
+    color: var(--naranja-claro);
+  }
+  .pestana__nombre {
+    font-weight: 700;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .pestana__barra {
+    grid-column: 1 / -1;
+    height: 3px;
+    background: var(--linea-fuerte);
+    overflow: hidden;
+  }
+  .pestana__barra span {
+    display: block;
+    height: 100%;
+    background: var(--naranja);
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+  .pestana[aria-current='true'] .pestana__barra span {
+    transform: scaleX(1);
+  }
+  .heroe.esta-corriendo .pestana[aria-current='true'] .pestana__barra span {
+    animation: progreso var(--duracion, 8s) linear forwards;
+  }
+  .heroe.esta-pausado .pestana[aria-current='true'] .pestana__barra span {
+    animation-play-state: paused;
+  }
+  @keyframes progreso {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+  .pausa {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 48px;
+    padding: 0 14px;
+    background: transparent;
+    border: 1px solid var(--linea-fuerte);
+    color: var(--texto);
+    font-weight: 700;
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    align-self: end;
+  }
+  .pausa__icono {
+    width: 10px;
+    height: 12px;
+    border-left: 3px solid currentColor;
+    border-right: 3px solid currentColor;
+  }
+  .pausa[aria-pressed='true'] .pausa__icono {
+    border: 0;
+    width: 0;
+    height: 0;
+    border-left: 10px solid currentColor;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+  }
+  @media (max-width: 559.98px) {
+    .pausa span[data-pausa-txt] {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+    }
+    .pausa {
+      width: 48px;
+      justify-content: center;
+      padding: 0;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-carrusel]').forEach((raiz) => {
+    const todas = [...raiz.querySelectorAll<HTMLElement>('[data-slide]')];
+    const visibles = () => todas.filter((s) => Number(s.dataset.fin) > Date.now());
+    const pestanas = [...raiz.querySelectorAll<HTMLButtonElement>('[data-ir]')];
+    const pausa = raiz.querySelector<HTMLButtonElement>('[data-pausa]');
+    const pausaTxt = raiz.querySelector<HTMLElement>('[data-pausa-txt]');
+    if (visibles().length < 2) {
+      raiz.querySelector('.heroe__pestanas')?.setAttribute('hidden', '');
+      raiz.querySelector('.heroe__flechas')?.setAttribute('hidden', '');
+      const unica = visibles()[0];
+      if (unica) {
+        unica.classList.add('es-activa');
+        unica.removeAttribute('inert');
+      }
+      return;
+    }
+    const DURACION = 8000;
+    raiz.style.setProperty('--duracion', `${DURACION}ms`);
+    const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let actual = 0;
+    let temporizador = 0;
+    let pausadoUsuario = reducido;
+    let pausadoTemporal = false;
+
+    const mostrar = (i: number) => {
+      const lista = visibles();
+      actual = (i + lista.length) % lista.length;
+      todas.forEach((s) => {
+        s.hidden = !lista.includes(s);
+        const activa = s === lista[actual];
+        s.classList.toggle('es-activa', activa);
+        s.toggleAttribute('inert', !activa);
+      });
+      pestanas.forEach((p) => {
+        const destino = todas[Number(p.dataset.ir)];
+        p.hidden = !lista.includes(destino);
+        if (destino === lista[actual]) p.setAttribute('aria-current', 'true');
+        else p.removeAttribute('aria-current');
+        // Reinicia la barra de progreso
+        const barra = p.querySelector<HTMLElement>('.pestana__barra span');
+        if (barra) {
+          barra.style.animation = 'none';
+          void barra.offsetWidth;
+          barra.style.animation = '';
+        }
+      });
+      programar();
+    };
+    const programar = () => {
+      window.clearTimeout(temporizador);
+      const corre = !pausadoUsuario && !pausadoTemporal;
+      raiz.classList.toggle('esta-corriendo', !pausadoUsuario);
+      raiz.classList.toggle('esta-pausado', !corre);
+      if (corre) temporizador = window.setTimeout(() => mostrar(actual + 1), DURACION);
+    };
+    const pausarTemporal = (v: boolean) => {
+      pausadoTemporal = v;
+      programar();
+    };
+
+    raiz.querySelector('[data-siguiente]')?.addEventListener('click', () => mostrar(actual + 1));
+    raiz.querySelector('[data-anterior]')?.addEventListener('click', () => mostrar(actual - 1));
+    pestanas.forEach((p) =>
+      p.addEventListener('click', () => {
+        const destino = todas[Number(p.dataset.ir)];
+        mostrar(visibles().indexOf(destino));
+      }),
+    );
+    pausa?.addEventListener('click', () => {
+      pausadoUsuario = !pausadoUsuario;
+      pausa.setAttribute('aria-pressed', String(pausadoUsuario));
+      if (pausaTxt) pausaTxt.textContent = pausadoUsuario ? 'Reproducir' : 'Pausar';
+      programar();
+    });
+    if (reducido && pausa) {
+      pausa.setAttribute('aria-pressed', 'true');
+      if (pausaTxt) pausaTxt.textContent = 'Reproducir';
+    }
+    raiz.addEventListener('pointerenter', (e) => e.pointerType === 'mouse' && pausarTemporal(true));
+    raiz.addEventListener('pointerleave', (e) => e.pointerType === 'mouse' && pausarTemporal(false));
+    raiz.addEventListener('focusin', () => pausarTemporal(true));
+    raiz.addEventListener('focusout', (e) => {
+      if (!raiz.contains(e.relatedTarget as Node)) pausarTemporal(false);
+    });
+    document.addEventListener('visibilitychange', () => pausarTemporal(document.hidden));
+    // Deslizar con el dedo
+    let x0: number | null = null;
+    raiz.querySelector('.heroe__pista')?.addEventListener('touchstart', (e) => (x0 = (e as TouchEvent).touches[0].clientX), { passive: true });
+    raiz.querySelector('.heroe__pista')?.addEventListener(
+      'touchend',
+      (e) => {
+        if (x0 === null) return;
+        const dx = (e as TouchEvent).changedTouches[0].clientX - x0;
+        if (Math.abs(dx) > 50) mostrar(actual + (dx < 0 ? 1 : -1));
+        x0 = null;
+      },
+      { passive: true },
+    );
+    mostrar(0);
+  });
+</script>

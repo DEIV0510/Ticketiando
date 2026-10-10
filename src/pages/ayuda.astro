@@ -1,0 +1,215 @@
+---
+import Base from '../layouts/Base.astro';
+import Icono from '../components/Icono.astro';
+import ComoComprar from '../components/ComoComprar.astro';
+import CompraSegura from '../components/CompraSegura.astro';
+import Preguntas from '../components/Preguntas.astro';
+import { FAQ, CONTACTO, LEGAL } from '../data/sitio';
+
+const canales = [
+  { icono: 'whatsapp' as const, titulo: 'WhatsApp', valor: CONTACTO.whatsapp.texto, href: CONTACTO.whatsapp.href, nota: 'Línea de servicio al cliente' },
+  { icono: 'telefono' as const, titulo: 'Teléfono', valor: CONTACTO.telefonoFijo.texto, href: CONTACTO.telefonoFijo.href, nota: 'Línea fija' },
+  { icono: 'correo' as const, titulo: 'Correo', valor: CONTACTO.correo.texto, href: CONTACTO.correo.href, nota: 'Para registrar casos y solicitudes' },
+];
+---
+
+<Base
+  titulo="Ayuda y preguntas frecuentes"
+  descripcion="Cómo comprar boletas en Ticketiando, cómo evitar estafas, medios de pago, derecho de retracto, devoluciones y cambios."
+>
+  <section class="cab" data-superficie="noche">
+    <div class="contenedor">
+      <p class="antetitulo">Centro de ayuda</p>
+      <h1 class="titulo-seccion cab__titulo">¿En qué te ayudamos?</h1>
+      <nav class="atajos" aria-label="Temas de ayuda">
+        <a href="#como-comprar"><Icono nombre="boleta" /> Cómo comprar</a>
+        <a href="#compra-segura"><Icono nombre="escudo" /> Compra segura</a>
+        <a href="#preguntas"><Icono nombre="ayuda" /> Preguntas frecuentes</a>
+        <a href="#contacto"><Icono nombre="whatsapp" /> Contacto</a>
+      </nav>
+    </div>
+  </section>
+
+  <ComoComprar />
+  <CompraSegura />
+
+  <section class="seccion" data-superficie="papel" id="preguntas" aria-labelledby="preguntas-titulo">
+    <div class="contenedor rejilla">
+      <div class="rejilla__intro">
+        <p class="antetitulo">Preguntas frecuentes</p>
+        <h2 id="preguntas-titulo" class="titulo-seccion">Resolvemos tus dudas</h2>
+        <p class="entrada">Resumen de nuestras políticas. El texto completo está en:</p>
+        <ul class="politicas">
+          {
+            LEGAL.filter((l) => !l.externo).map((l) => (
+              <li>
+                <a href={l.href}>
+                  {l.texto} <Icono nombre="flecha" />
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+      <Preguntas preguntas={FAQ} abrirPrimera />
+    </div>
+  </section>
+
+  <section class="seccion" data-superficie="blanco" id="contacto" aria-labelledby="contacto-titulo">
+    <div class="contenedor">
+      <div class="cabecera-seccion">
+        <p class="antetitulo">Contacto</p>
+        <h2 id="contacto-titulo" class="titulo-seccion">Habla con una persona</h2>
+      </div>
+      <ul class="canales">
+        {
+          canales.map((c) => (
+            <li>
+              <a href={c.href} {...(c.href.startsWith('http') ? { target: '_blank', rel: 'noopener' } : {})}>
+                <span class="canales__icono">
+                  <Icono nombre={c.icono} />
+                </span>
+                <span class="canales__titulo">{c.titulo}</span>
+                <strong>{c.valor}</strong>
+                <span class="canales__nota">{c.nota}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .cab {
+    padding: clamp(40px, 7vw, 88px) 0 clamp(32px, 5vw, 56px);
+    background:
+      radial-gradient(60% 120% at 100% 0%, rgb(255 81 0 / 0.18), transparent 60%),
+      var(--noche);
+  }
+  .cab .contenedor {
+    display: grid;
+    gap: 14px;
+  }
+  .cab__titulo {
+    font-size: clamp(2.75rem, 7vw, 5.5rem);
+  }
+  .atajos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .atajos a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 48px;
+    padding: 0 16px;
+    border: 1px solid var(--linea-fuerte);
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .atajos a:hover {
+    border-color: var(--naranja);
+    color: var(--naranja-claro);
+  }
+  .atajos :global(svg) {
+    width: 18px;
+    height: 18px;
+    color: var(--naranja);
+  }
+  .rejilla {
+    display: grid;
+    gap: 32px;
+  }
+  @media (min-width: 1080px) {
+    .rejilla {
+      grid-template-columns: 0.8fr 1.2fr;
+      gap: 72px;
+    }
+  }
+  .rejilla__intro {
+    display: grid;
+    gap: 14px;
+    align-content: start;
+  }
+  .politicas {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+  }
+  .politicas a {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 48px;
+    border-bottom: 1px solid var(--linea);
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .politicas a:hover {
+    color: var(--acento-texto);
+  }
+  .politicas :global(svg) {
+    width: 18px;
+    height: 18px;
+  }
+  .canales {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 16px;
+  }
+  @media (min-width: 900px) {
+    .canales {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  .canales a {
+    display: grid;
+    gap: 4px;
+    padding: 24px;
+    background: var(--papel);
+    text-decoration: none;
+    border-bottom: 4px solid transparent;
+    transition: border-color 0.18s;
+  }
+  .canales a:hover {
+    border-bottom-color: var(--naranja);
+  }
+  .canales__icono {
+    display: inline-flex;
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+    background: var(--noche);
+    color: var(--naranja);
+    margin-bottom: 10px;
+  }
+  .canales__icono :global(svg) {
+    width: 22px;
+    height: 22px;
+  }
+  .canales__titulo {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--texto-2);
+  }
+  .canales strong {
+    font-size: 1.375rem;
+    font-weight: 850;
+    font-stretch: var(--estrecha);
+    word-break: break-word;
+  }
+  .canales__nota {
+    font-size: 0.875rem;
+    color: var(--texto-2);
+  }
+</style>

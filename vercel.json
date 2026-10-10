@@ -1,0 +1,35 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "trailingSlash": true,
+  "redirects": [
+    { "source": "/festival-cerveza", "destination": "/eventos/festival-cerveza-artesanal-del-caribe/", "permanent": true },
+    { "source": "/la-maquina", "destination": "/eventos/la-maquina-del-tiempo/", "permanent": true },
+    { "source": "/about", "destination": "/nosotros/", "permanent": true },
+    { "source": "/contact", "destination": "/contacto/", "permanent": true },
+    { "source": "/capibara-santa-marta", "destination": "/eventos/#realizados", "permanent": true },
+    { "source": "/capibara-la-gran-aventura", "destination": "/eventos/#realizados", "permanent": true },
+    { "source": "/show-de-intensamente", "destination": "/eventos/#realizados", "permanent": true },
+    { "source": "/frank-barranquilla", "destination": "/eventos/#realizados", "permanent": true },
+    { "source": "/sample-page", "destination": "/", "permanent": true },
+    { "source": "/projects", "destination": "/", "permanent": true },
+    { "source": "/services", "destination": "/", "permanent": true }
+  ],
+  "headers": [
+    {
+      "source": "/_astro/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    },
+    {
+      "source": "/fonts/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" }
+      ]
+    }
+  ]
+}

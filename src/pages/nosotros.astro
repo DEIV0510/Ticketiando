@@ -1,0 +1,132 @@
+---
+import Base from '../layouts/Base.astro';
+import Icono from '../components/Icono.astro';
+import Realizados from '../components/Realizados.astro';
+import VendeBanda from '../components/VendeBanda.astro';
+import { EMPRESA, CONTACTO } from '../data/sitio';
+---
+
+<Base
+  titulo="Nosotros"
+  descripcion="Ticketiando es una empresa colombiana de boletería: venta de tickets en línea y en canales físicos para eventos y espectáculos públicos."
+>
+  <section class="cab" data-superficie="noche">
+    <div class="contenedor cab__rejilla">
+      <div>
+        <p class="antetitulo">Quiénes somos</p>
+        <h1 class="titulo-seccion cab__titulo">Tu boleto a la mano</h1>
+      </div>
+      <div class="cab__texto">
+        <p class="entrada cab__entrada">
+          Somos una empresa que ofrece a empresarios y usuarios una alternativa de compra de tickets en línea y fuera de línea en cualquier parte del país.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="seccion" data-superficie="papel" aria-labelledby="como">
+    <div class="contenedor rejilla">
+      <h2 id="como" class="titulo-seccion">Cómo trabajamos</h2>
+      <div class="prosa">
+        <p>
+          A través de nuestro sitio web <strong>ticketiando.com</strong>, los usuarios pueden comprar sus entradas para todo tipo de eventos y espectáculos públicos a cualquier hora del día. Los canales físicos se habilitan de acuerdo con la demanda de los eventos y las necesidades del mercado.
+        </p>
+        <p>Contamos con una plataforma que opera bajo óptimas condiciones de tecnología, calidad y seguridad transaccional.</p>
+        <p>
+          Nuestro interés es ofrecer alternativas de calidad; por eso nos enfocamos en la mejora continua que garantice a nuestros clientes y usuarios una experiencia positiva.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="seccion datos" data-superficie="blanco" aria-labelledby="empresa">
+    <div class="contenedor">
+      <h2 id="empresa" class="titulo-seccion">La empresa</h2>
+      <dl class="datos__lista">
+        <div><dt>Razón social</dt><dd>{EMPRESA.razonSocial}</dd></div>
+        <div><dt>NIT</dt><dd class="num">{EMPRESA.nit}</dd></div>
+        <div><dt>Domicilio principal</dt><dd>{EMPRESA.domicilio}</dd></div>
+        <div><dt>Oficina</dt><dd>{EMPRESA.direccion}</dd></div>
+        <div><dt>Servicio al cliente</dt><dd><a href={CONTACTO.whatsapp.href} target="_blank" rel="noopener"><Icono nombre="whatsapp" /> {CONTACTO.whatsapp.texto}</a></dd></div>
+        <div><dt>Correo</dt><dd><a href={CONTACTO.correo.href}>{CONTACTO.correo.texto}</a></dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <Realizados />
+  <VendeBanda />
+</Base>
+
+<style>
+  .cab {
+    padding: clamp(48px, 8vw, 112px) 0;
+    background:
+      radial-gradient(60% 120% at 100% 0%, rgb(255 81 0 / 0.2), transparent 60%),
+      var(--noche);
+  }
+  .cab__rejilla {
+    display: grid;
+    gap: 24px;
+  }
+  @media (min-width: 1080px) {
+    .cab__rejilla {
+      grid-template-columns: 1fr 1fr;
+      align-items: end;
+      gap: 72px;
+    }
+  }
+  .cab__titulo {
+    font-size: clamp(3rem, 8vw, 6.5rem);
+    margin-top: 12px;
+  }
+  .cab__entrada {
+    font-size: clamp(1.25rem, 2vw, 1.625rem);
+    color: var(--blanco);
+    line-height: 1.4;
+  }
+  .rejilla {
+    display: grid;
+    gap: 24px;
+  }
+  @media (min-width: 1080px) {
+    .rejilla {
+      grid-template-columns: 0.8fr 1.2fr;
+      gap: 72px;
+    }
+  }
+  .datos__lista {
+    margin: 28px 0 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+    gap: 1px;
+    background: var(--linea);
+    border: 1px solid var(--linea);
+  }
+  .datos__lista div {
+    background: var(--blanco);
+    padding: 18px 20px;
+  }
+  dt {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--texto-2);
+  }
+  dd {
+    margin: 6px 0 0;
+    font-weight: 700;
+    font-size: 1.0625rem;
+  }
+  dd a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: var(--acento-texto);
+  }
+  dd :global(svg) {
+    width: 18px;
+    height: 18px;
+  }
+</style>

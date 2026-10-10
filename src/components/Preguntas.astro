@@ -1,0 +1,67 @@
+---
+import Icono from './Icono.astro';
+
+interface Props {
+  preguntas: { p: string; r: string }[];
+  /** Abre la primera al cargar */
+  abrirPrimera?: boolean;
+}
+const { preguntas, abrirPrimera = false } = Astro.props;
+---
+
+<div class="preguntas">
+  {
+    preguntas.map((q, i) => (
+      <details open={abrirPrimera && i === 0}>
+        <summary>
+          <span>{q.p}</span>
+          <Icono nombre="mas" class="preguntas__icono" />
+        </summary>
+        <p>{q.r}</p>
+      </details>
+    ))
+  }
+</div>
+
+<style>
+  .preguntas {
+    border-top: 1px solid var(--linea-fuerte);
+  }
+  details {
+    border-bottom: 1px solid var(--linea-fuerte);
+  }
+  summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    min-height: 64px;
+    padding: 14px 0;
+    cursor: pointer;
+    list-style: none;
+    font-size: 1.125rem;
+    font-weight: 750;
+    line-height: 1.3;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  summary:hover span {
+    color: var(--acento-texto);
+  }
+  .preguntas__icono {
+    width: 22px;
+    height: 22px;
+    flex: none;
+    color: var(--acento-texto);
+    transition: transform 0.2s var(--curva);
+  }
+  details[open] .preguntas__icono {
+    transform: rotate(45deg);
+  }
+  details p {
+    padding: 0 40px 22px 0;
+    color: var(--texto-2);
+    max-width: 72ch;
+  }
+</style>

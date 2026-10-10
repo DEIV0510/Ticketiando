@@ -1,0 +1,22 @@
+{
+  "name": "ticketiando-rediseno",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev --port 5480",
+    "build": "astro build",
+    "preview": "astro preview --port 5481",
+    "check": "astro check"
+  },
+  "dependencies": {
+    "astro": "^7.3.8",
+    "sharp": "^0.35.5"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@fontsource-variable/archivo": "^5.3.0",
+    "@types/node": "^26.6.5",
+    "typescript": "^6.0.3"
+  }
+}

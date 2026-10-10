@@ -1,0 +1,100 @@
+---
+import Icono from './Icono.astro';
+
+const pasos = [
+  { icono: 'buscar' as const, titulo: 'Elige tu evento', texto: 'Revisa fecha, lugar, edad mínima y localidades en la ficha del evento.' },
+  { icono: 'boleta' as const, titulo: 'Escoge localidad', texto: 'Selecciona localidad y cantidad en ventas.ticketiando.com, nuestra plataforma oficial.' },
+  { icono: 'tarjeta' as const, titulo: 'Paga seguro', texto: 'Con PSE, Visa o Mastercard a través de Mercado Pago. Nunca por transferencia a personas.' },
+  { icono: 'escudo' as const, titulo: 'Guarda tu boleta', texto: 'Cuídala hasta el día del evento: es tu responsabilidad y la presentas al ingresar.' },
+];
+---
+
+<section class="pasos seccion" data-superficie="papel" id="como-comprar" aria-labelledby="pasos-titulo">
+  <div class="contenedor">
+    <div class="cabecera-seccion cabecera-seccion--fila">
+      <div>
+        <p class="antetitulo">Cómo comprar</p>
+        <h2 id="pasos-titulo" class="titulo-seccion">Tu boleta en 4 pasos</h2>
+      </div>
+      <a class="enlace-flecha" href="/ayuda/">Preguntas frecuentes <Icono nombre="flecha" /></a>
+    </div>
+    <ol class="pasos__lista">
+      {
+        pasos.map((p, i) => (
+          <li class="pasos__item">
+            <div class="pasos__cabeza">
+              <span class="pasos__num num">{i + 1}</span>
+              <span class="pasos__icono">
+                <Icono nombre={p.icono} />
+              </span>
+            </div>
+            <h3>{p.titulo}</h3>
+            <p>{p.texto}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .pasos__lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 2px;
+    background: var(--linea);
+    border: 1px solid var(--linea);
+  }
+  @media (min-width: 720px) {
+    .pasos__lista {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 1080px) {
+    .pasos__lista {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  .pasos__item {
+    display: grid;
+    gap: 10px;
+    align-content: start;
+    padding: 26px 24px 30px;
+    background: var(--blanco);
+  }
+  .pasos__cabeza {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .pasos__num {
+    font-size: 4rem;
+    font-weight: 900;
+    font-stretch: var(--muy-estrecha);
+    line-height: 0.8;
+    color: var(--noche);
+  }
+  .pasos__icono {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: var(--naranja);
+    color: var(--noche);
+  }
+  .pasos__icono :global(svg) {
+    width: 22px;
+    height: 22px;
+  }
+  h3 {
+    font-size: 1.375rem;
+    text-transform: uppercase;
+  }
+  p {
+    color: var(--texto-2);
+  }
+</style>

@@ -1,0 +1,241 @@
+---
+import { Image } from 'astro:assets';
+import Logo from './Logo.astro';
+import Icono from './Icono.astro';
+import { EMPRESA, CONTACTO, LEGAL } from '../data/sitio';
+import mincultura from '../assets/marca/mincultura.png';
+import pse from '../assets/pagos/pse.png';
+import visa from '../assets/pagos/visa.png';
+import mastercard from '../assets/pagos/mastercard.png';
+import mercadopago from '../assets/pagos/mercadopago.png';
+
+const pagos = [
+  { src: pse, alt: 'PSE', alto: 30 },
+  { src: visa, alt: 'Visa', alto: 18 },
+  { src: mastercard, alt: 'Mastercard', alto: 26 },
+  { src: mercadopago, alt: 'Mercado Pago', alto: 28 },
+];
+const anio = new Date().getFullYear();
+---
+
+<footer class="pie" data-superficie="noche">
+  <div class="contenedor">
+    <div class="pie__rejilla">
+      <div class="pie__marca">
+        <Logo ancho={190} />
+        <p class="pie__lema">
+          Boletería oficial para conciertos, festivales, fiestas, teatro y eventos familiares. Venta en línea con pagos seguros y soporte humano.
+        </p>
+        <a class="pie__social" href={CONTACTO.instagram.href} target="_blank" rel="noopener">
+          <Icono nombre="instagram" />
+          <span>{CONTACTO.instagram.texto}</span>
+        </a>
+      </div>
+
+      <nav class="pie__col" aria-label="Explora">
+        <h2>Explora</h2>
+        <ul>
+          <li><a href="/eventos/">Eventos</a></li>
+          <li><a href="/ayuda/#como-comprar">Cómo comprar</a></li>
+          <li><a href="/ayuda/#compra-segura">Compra segura</a></li>
+          <li><a href="/vende-tu-evento/">Vende tu evento</a></li>
+          <li><a href="/nosotros/">Nosotros</a></li>
+          <li><a href="/ayuda/">Preguntas frecuentes</a></li>
+        </ul>
+      </nav>
+
+      <nav class="pie__col" aria-label="Legal">
+        <h2>Legal</h2>
+        <ul>
+          {
+            LEGAL.map((l) => (
+              <li>
+                <a href={l.href} {...(l.externo ? { target: '_blank', rel: 'noopener' } : {})}>
+                  {l.texto}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <div class="pie__col">
+        <h2>Contacto</h2>
+        <ul class="pie__contacto">
+          <li><a href={CONTACTO.whatsapp.href} target="_blank" rel="noopener"><Icono nombre="whatsapp" /> {CONTACTO.whatsapp.texto}</a></li>
+          <li><a href={CONTACTO.telefonoFijo.href}><Icono nombre="telefono" /> {CONTACTO.telefonoFijo.texto}</a></li>
+          <li><a href={CONTACTO.correo.href}><Icono nombre="correo" /> {CONTACTO.correo.texto}</a></li>
+          <li><span><Icono nombre="ubicacion" /> {EMPRESA.direccion}</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="pie__confianza">
+      <div class="pie__sello">
+        <p>Autorizados por</p>
+        <span class="pie__chip pie__chip--mc">
+          <Image src={mincultura} alt="Ministerio de Cultura" height={22} width={Math.round((22 * mincultura.width) / mincultura.height)} densities={[1, 2]} format="webp" loading="lazy" />
+        </span>
+      </div>
+      <div class="pie__sello">
+        <p>Pagos seguros</p>
+        <ul class="pie__pagos" aria-label="Medios de pago">
+          {
+            pagos.map((p) => (
+              <li class="pie__chip">
+                <Image src={p.src} alt={p.alt} height={p.alto} width={Math.round((p.alto * p.src.width) / p.src.height)} densities={[1, 2]} format="webp" loading="lazy" />
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+
+    <div class="pie__legal">
+      <p>© {anio} {EMPRESA.razonSocial} · NIT {EMPRESA.nit}</p>
+      <p>Venta de boletería para espectáculos públicos. Cada evento publica su código PULEP del Ministerio de Cultura.</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .pie {
+    --fondo: var(--noche-profunda);
+    background: var(--fondo);
+    padding: clamp(48px, 7vw, 80px) 0 calc(28px + env(safe-area-inset-bottom));
+    font-size: 0.9375rem;
+  }
+  .pie__rejilla {
+    display: grid;
+    gap: 36px;
+  }
+  @media (min-width: 720px) {
+    .pie__rejilla {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (min-width: 1080px) {
+    .pie__rejilla {
+      grid-template-columns: 1.4fr 0.8fr 1fr 1.2fr;
+      gap: 48px;
+    }
+  }
+  .pie__marca :global(img) {
+    width: 190px;
+    height: auto;
+  }
+  .pie__lema {
+    margin-top: 18px;
+    color: var(--texto-2);
+    max-width: 38ch;
+  }
+  .pie__social {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 18px;
+    min-height: 44px;
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .pie__social :global(svg) {
+    width: 22px;
+    height: 22px;
+  }
+  .pie__social:hover {
+    color: var(--naranja-claro);
+  }
+  .pie__col h2 {
+    font-size: 0.8125rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 700;
+    font-stretch: 100%;
+    color: var(--naranja-claro);
+    margin-bottom: 12px;
+  }
+  .pie__col ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+  }
+  .pie__col a,
+  .pie__col span {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 40px;
+    color: var(--texto-2);
+    text-decoration: none;
+  }
+  .pie__col a:hover {
+    color: var(--blanco);
+  }
+  .pie__contacto :global(svg) {
+    width: 18px;
+    height: 18px;
+    flex: none;
+    color: var(--naranja-claro);
+  }
+  .pie__contacto span {
+    align-items: flex-start;
+    padding-top: 9px;
+    line-height: 1.45;
+  }
+  .pie__contacto span :global(svg) {
+    margin-top: 2px;
+  }
+  .pie__confianza {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px 48px;
+    margin-top: 44px;
+    padding-top: 28px;
+    border-top: 1px solid var(--linea);
+  }
+  .pie__sello p {
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--texto-2);
+    margin-bottom: 10px;
+  }
+  .pie__pagos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .pie__chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    min-width: 68px;
+    padding: 0 12px;
+    background: var(--blanco);
+  }
+  .pie__chip :global(img) {
+    width: auto;
+  }
+  .pie__legal {
+    display: grid;
+    gap: 6px;
+    margin-top: 28px;
+    font-size: 0.8125rem;
+    color: var(--texto-2);
+  }
+  @media (min-width: 900px) {
+    .pie__legal {
+      grid-template-columns: auto 1fr;
+      gap: 24px;
+    }
+    .pie__legal p:last-child {
+      text-align: right;
+    }
+  }
+</style>

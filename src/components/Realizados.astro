@@ -1,0 +1,121 @@
+---
+import { Picture } from 'astro:assets';
+import { REALIZADOS, REALIZADOS_SIN_AFICHE } from '../data/eventos';
+
+interface Props {
+  id?: string;
+}
+const { id = 'realizados' } = Astro.props;
+const ciudades = [...new Set([...REALIZADOS.map((r) => r.ciudad), 'Santa Marta'])];
+---
+
+<section class="trayectoria seccion" data-superficie="noche" id={id} aria-labelledby={`${id}-titulo`}>
+  <div class="contenedor">
+    <div class="cabecera-seccion cabecera-seccion--fila">
+      <div>
+        <p class="antetitulo">Trayectoria</p>
+        <h2 id={`${id}-titulo`} class="titulo-seccion">Eventos que ya vendimos</h2>
+      </div>
+      <p class="entrada">
+        Conciertos, fiestas, stand-up y shows familiares en {ciudades.slice(0, -1).join(', ')} y {ciudades.at(-1)}.
+      </p>
+    </div>
+
+    <ul class="trayectoria__rejilla">
+      {
+        REALIZADOS.map((r) => (
+          <li class="afiche">
+            <figure>
+              <div class="afiche__img">
+                <Picture src={r.imagen} alt={r.alt} formats={['avif', 'webp']} widths={[280, 420, 560]} sizes="(min-width: 1080px) 230px, (min-width: 720px) 30vw, 46vw" loading="lazy" quality={68} />
+                <span class="afiche__sello">Realizado</span>
+              </div>
+              <figcaption>
+                <strong>{r.titulo}</strong>
+                <span>
+                  {r.ciudad} · {r.fecha}
+                </span>
+              </figcaption>
+            </figure>
+          </li>
+        ))
+      }
+    </ul>
+
+    <p class="trayectoria__mas">
+      También: {REALIZADOS_SIN_AFICHE.join(' · ')}.
+    </p>
+  </div>
+</section>
+
+<style>
+  .trayectoria__rejilla {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+  @media (min-width: 720px) {
+    .trayectoria__rejilla {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1080px) {
+    .trayectoria__rejilla {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 18px;
+    }
+  }
+  figure {
+    margin: 0;
+    display: grid;
+    gap: 10px;
+  }
+  .afiche__img {
+    position: relative;
+    overflow: hidden;
+    background: var(--noche-2);
+  }
+  .afiche__img :global(img) {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    filter: saturate(0.92);
+    transition: transform 0.5s var(--curva), filter 0.3s;
+  }
+  .afiche:hover .afiche__img :global(img) {
+    transform: scale(1.04);
+    filter: saturate(1.05);
+  }
+  .afiche__sello {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 4px 8px;
+    background: rgb(0 6 31 / 0.85);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  figcaption {
+    display: grid;
+    gap: 2px;
+    line-height: 1.3;
+  }
+  figcaption strong {
+    font-weight: 750;
+    font-size: 0.9375rem;
+  }
+  figcaption span {
+    font-size: 0.8125rem;
+    color: var(--texto-2);
+  }
+  .trayectoria__mas {
+    margin-top: 28px;
+    font-size: 0.9375rem;
+    color: var(--texto-2);
+  }
+</style>

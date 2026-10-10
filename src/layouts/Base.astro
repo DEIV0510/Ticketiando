@@ -1,0 +1,119 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Icono from '../components/Icono.astro';
+import { CONTACTO, EMPRESA } from '../data/sitio';
+
+interface Props {
+  titulo: string;
+  descripcion: string;
+  imagen?: string;
+  /** JSON-LD adicional (por ejemplo, el del evento). */
+  datos?: Record<string, unknown>[];
+  /** En la ficha de evento, el botón flotante sube para no tapar la barra de compra. */
+  conBarraCompra?: boolean;
+}
+
+const { titulo, descripcion, imagen, datos = [], conBarraCompra = false } = Astro.props;
+const canonica = new URL(Astro.url.pathname, Astro.site).href;
+const og = imagen ? new URL(imagen, Astro.site).href : new URL('/icono-512.png', Astro.site).href;
+const tituloCompleto = titulo.includes('Ticketiando') ? titulo : `${titulo} | Ticketiando`;
+
+const organizacion = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Ticketiando',
+  legalName: EMPRESA.razonSocial,
+  url: new URL('/', Astro.site).href,
+  logo: new URL('/icono-512.png', Astro.site).href,
+  slogan: EMPRESA.lema,
+  sameAs: [CONTACTO.instagram.href],
+  contactPoint: [{ '@type': 'ContactPoint', telephone: '+57-322-386-7112', contactType: 'customer service', areaServed: 'CO', availableLanguage: 'es' }],
+};
+---
+
+<!doctype html>
+<html lang="es-CO">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{tituloCompleto}</title>
+    <meta name="description" content={descripcion} />
+    <link rel="canonical" href={canonica} />
+    <meta name="theme-color" content="#000a32" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="preload" href="/fonts/archivo-wdth.woff2" as="font" type="font/woff2" crossorigin />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_CO" />
+    <meta property="og:site_name" content="Ticketiando" />
+    <meta property="og:title" content={tituloCompleto} />
+    <meta property="og:description" content={descripcion} />
+    <meta property="og:url" content={canonica} />
+    <meta property="og:image" content={og} />
+    <meta name="twitter:card" content={imagen ? 'summary_large_image' : 'summary'} />
+
+    <script type="application/ld+json" set:html={JSON.stringify([organizacion, ...datos])} />
+    <slot name="head" />
+  </head>
+  <body class:list={{ 'con-barra-compra': conBarraCompra }}>
+    <Header />
+    <main id="contenido" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+    <script>
+      import '../scripts/vigencia.ts';
+    </script>
+
+    <a class="fab-wa" href={`${CONTACTO.whatsapp.href}?text=${encodeURIComponent('Hola Ticketiando, necesito ayuda con ')}`} target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp">
+      <Icono nombre="whatsapp" />
+      <span>¿Ayuda?</span>
+    </a>
+
+    <style>
+      main {
+        outline: none;
+      }
+      .fab-wa {
+        position: fixed;
+        right: max(16px, env(safe-area-inset-right));
+        bottom: max(16px, env(safe-area-inset-bottom));
+        z-index: var(--z-barra);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        height: 52px;
+        padding: 0 16px 0 14px;
+        background: var(--verde);
+        color: #fff;
+        font-weight: 750;
+        font-size: 0.875rem;
+        letter-spacing: 0.02em;
+        text-decoration: none;
+        box-shadow: 0 10px 30px rgb(0 6 31 / 0.35);
+        transition: transform 0.18s var(--curva);
+      }
+      .fab-wa:hover {
+        transform: translateY(-2px);
+      }
+      .fab-wa :global(svg) {
+        width: 24px;
+        height: 24px;
+      }
+      @media (max-width: 1023.98px) {
+        .con-barra-compra .fab-wa {
+          bottom: calc(96px + env(safe-area-inset-bottom));
+          width: 52px;
+          padding: 0;
+          justify-content: center;
+        }
+        .con-barra-compra .fab-wa span {
+          display: none;
+        }
+      }
+    </style>
+  </body>
+</html>

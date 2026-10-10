@@ -1,0 +1,261 @@
+---
+import Base from '../../layouts/Base.astro';
+import TarjetaEvento from '../../components/TarjetaEvento.astro';
+import Realizados from '../../components/Realizados.astro';
+import Icono from '../../components/Icono.astro';
+import { EVENTOS, type Categoria } from '../../data/eventos';
+import { CONTACTO } from '../../data/sitio';
+import { esProximo, ordenarPorFecha } from '../../lib/formato';
+
+const proximos = ordenarPorFecha(EVENTOS.filter((e) => esProximo(e)));
+const categorias = [...new Set(proximos.map((e) => e.categoria))] as Categoria[];
+const ciudades = [...new Set(proximos.map((e) => e.ciudad))];
+---
+
+<Base
+  titulo="Eventos y boletas oficiales"
+  descripcion="Cartelera de Ticketiando: conciertos, festivales, fiestas y shows familiares con boletas oficiales y pagos seguros."
+>
+  <section class="cab" data-superficie="noche">
+    <div class="contenedor">
+      <p class="antetitulo">Cartelera</p>
+      <h1 class="titulo-seccion cab__titulo">Eventos</h1>
+      <p class="entrada">Boletas oficiales para {proximos.length} evento{proximos.length === 1 ? '' : 's'} en venta. Filtra por tipo o ciudad, o busca por nombre.</p>
+
+      <form class="filtros" role="search" data-filtros onsubmit="return false">
+        <div class="filtros__buscar">
+          <label for="q" class="sr-only">Buscar evento, artista o lugar</label>
+          <Icono nombre="buscar" />
+          <input id="q" name="q" type="search" placeholder="Busca evento, artista o lugar" autocomplete="off" enterkeyhint="search" />
+        </div>
+        <div class="filtros__grupo" role="group" aria-label="Tipo de evento">
+          <button type="button" class="filtro" data-cat="" aria-pressed="true">Todos</button>
+          {
+            categorias.map((c) => (
+              <button type="button" class="filtro" data-cat={c} aria-pressed="false">
+                {c}
+              </button>
+            ))
+          }
+        </div>
+        {
+          ciudades.length > 1 && (
+            <div class="filtros__ciudad">
+              <label for="ciudad">Ciudad</label>
+              <select id="ciudad" name="ciudad">
+                <option value="">Todas</option>
+                {ciudades.map((c) => (
+                  <option value={c}>{c}</option>
+                ))}
+              </select>
+            </div>
+          )
+        }
+      </form>
+    </div>
+  </section>
+
+  <section class="lista seccion" data-superficie="papel" aria-label="Eventos en venta">
+    <div class="contenedor">
+      <p class="lista__conteo" aria-live="polite" data-conteo></p>
+      <div class="lista__rejilla" data-lista-proximos="#lista-vacia">
+        {proximos.map((e) => <TarjetaEvento evento={e} nivel="h2" />)}
+      </div>
+      <div id="lista-vacia" class="vacio" hidden={proximos.length > 0}>
+        <h2>No hay eventos con ese filtro</h2>
+        <p>
+          Prueba con otra búsqueda o mira la <button type="button" class="vacio__limpiar" data-limpiar>cartelera completa</button>. Para enterarte de los próximos lanzamientos, síguenos en
+          <a href={CONTACTO.instagram.href} target="_blank" rel="noopener">Instagram {CONTACTO.instagram.texto}</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <Realizados />
+</Base>
+
+<style>
+  .cab {
+    padding: clamp(36px, 6vw, 72px) 0 clamp(28px, 4vw, 44px);
+    background:
+      radial-gradient(60% 120% at 100% 0%, rgb(255 81 0 / 0.18), transparent 60%),
+      var(--noche);
+  }
+  .cab .contenedor {
+    display: grid;
+    gap: 14px;
+  }
+  .cab__titulo {
+    font-size: clamp(3rem, 9vw, 6rem);
+  }
+  .filtros {
+    display: grid;
+    gap: 14px;
+    margin-top: 14px;
+  }
+  .filtros__buscar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 16px;
+    background: var(--blanco);
+    color: var(--tinta);
+    min-height: 56px;
+    max-width: 640px;
+  }
+  .filtros__buscar :global(svg) {
+    width: 22px;
+    height: 22px;
+    color: var(--naranja-oscuro);
+    flex: none;
+  }
+  .filtros__buscar input {
+    flex: 1;
+    min-width: 0;
+    min-height: 54px;
+    border: 0;
+    background: transparent;
+    font-size: 1.0625rem;
+    outline: none;
+  }
+  .filtros__buscar:focus-within {
+    outline: 3px solid var(--naranja);
+    outline-offset: 2px;
+  }
+  .filtros__grupo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .filtro {
+    min-height: 44px;
+    padding: 0 16px;
+    background: transparent;
+    border: 1px solid var(--linea-fuerte);
+    color: var(--texto);
+    font-weight: 700;
+    font-size: 0.875rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .filtro:hover {
+    border-color: var(--texto);
+  }
+  .filtro[aria-pressed='true'] {
+    background: var(--naranja);
+    border-color: var(--naranja);
+    color: var(--noche);
+  }
+  .filtros__ciudad {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .filtros__ciudad label {
+    font-weight: 700;
+    font-size: 0.875rem;
+  }
+  .filtros__ciudad select {
+    min-height: 44px;
+    padding: 0 12px;
+    background: var(--noche-2);
+    border: 1px solid var(--linea-fuerte);
+    border-radius: 0;
+  }
+  .lista__conteo {
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--texto-2);
+    margin-bottom: 16px;
+    min-height: 1.5em;
+  }
+  .lista__rejilla {
+    display: grid;
+    gap: 22px;
+  }
+  .vacio {
+    padding: 28px;
+    background: var(--blanco);
+    border: 1px dashed var(--linea-fuerte);
+    display: grid;
+    gap: 8px;
+  }
+  .vacio h2 {
+    font-size: 1.5rem;
+    text-transform: uppercase;
+  }
+  .vacio a,
+  .vacio__limpiar {
+    color: var(--acento-texto);
+    font-weight: 700;
+  }
+  .vacio__limpiar {
+    background: none;
+    border: 0;
+    padding: 0;
+    text-decoration: underline;
+  }
+</style>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-filtros]');
+  const q = document.getElementById('q') as HTMLInputElement | null;
+  const ciudad = document.getElementById('ciudad') as HTMLSelectElement | null;
+  const botones = [...document.querySelectorAll<HTMLButtonElement>('.filtro')];
+  const tarjetas = [...document.querySelectorAll<HTMLElement>('.lista__rejilla [data-fin]')];
+  const conteo = document.querySelector<HTMLElement>('[data-conteo]');
+  const vacio = document.getElementById('lista-vacia');
+  const norm = (s: string) => s.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
+  let cat = '';
+
+  const aplicar = () => {
+    const nq = norm(q?.value.trim() ?? '');
+    const ciu = ciudad?.value ?? '';
+    const ahora = Date.now();
+    let n = 0;
+    tarjetas.forEach((t) => {
+      const ok =
+        Number(t.dataset.fin) > ahora &&
+        (!cat || t.dataset.categoria === cat) &&
+        (!ciu || t.dataset.ciudad === ciu) &&
+        (!nq || norm(t.dataset.claves ?? '').includes(nq));
+      t.hidden = !ok;
+      if (ok) n++;
+    });
+    if (conteo) conteo.textContent = `${n} evento${n === 1 ? '' : 's'} en venta`;
+    if (vacio) vacio.hidden = n > 0;
+    const params = new URLSearchParams();
+    if (nq) params.set('q', q!.value.trim());
+    if (cat) params.set('tipo', cat);
+    if (ciu) params.set('ciudad', ciu);
+    const nueva = `${location.pathname}${params.size ? '?' + params : ''}${location.hash}`;
+    history.replaceState(null, '', nueva);
+  };
+
+  const params = new URLSearchParams(location.search);
+  if (q && params.get('q')) q.value = params.get('q')!;
+  if (ciudad && params.get('ciudad')) ciudad.value = params.get('ciudad')!;
+  if (params.get('tipo') && botones.some((b) => b.dataset.cat === params.get('tipo'))) cat = params.get('tipo')!;
+  botones.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.cat === cat)));
+
+  botones.forEach((b) =>
+    b.addEventListener('click', () => {
+      cat = b.dataset.cat ?? '';
+      botones.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      aplicar();
+    }),
+  );
+  q?.addEventListener('input', aplicar);
+  ciudad?.addEventListener('change', aplicar);
+  form?.addEventListener('submit', (e) => e.preventDefault());
+  document.querySelector('[data-limpiar]')?.addEventListener('click', () => {
+    if (q) q.value = '';
+    if (ciudad) ciudad.value = '';
+    cat = '';
+    botones.forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.cat === '')));
+    aplicar();
+  });
+  aplicar();
+</script>

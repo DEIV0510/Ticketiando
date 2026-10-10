@@ -1,0 +1,107 @@
+---
+import Icono from './Icono.astro';
+import { CONTACTO, EMPRESA } from '../data/sitio';
+
+const pilares = [
+  {
+    icono: 'escudo' as const,
+    titulo: 'Boletería oficial y legal',
+    texto: `Cada evento publica su código PULEP del Ministerio de Cultura. Vende ${EMPRESA.razonSocial}, NIT ${EMPRESA.nit}.`,
+  },
+  {
+    icono: 'tarjeta' as const,
+    titulo: 'Pagos protegidos',
+    texto: 'PSE, Visa y Mastercard a través de la pasarela de Mercado Pago. Nunca transferencias a personas.',
+  },
+  {
+    icono: 'whatsapp' as const,
+    titulo: 'Atención de verdad',
+    texto: `WhatsApp ${CONTACTO.whatsapp.texto}, teléfono ${CONTACTO.telefonoFijo.texto} y oficina física en el Ed. S48 Tower.`,
+  },
+  {
+    icono: 'identificacion' as const,
+    titulo: 'Tus derechos, claros',
+    texto: 'Retracto de 5 días hábiles en compras en línea y políticas de devolución y cambios publicadas.',
+  },
+];
+---
+
+<section class="confianza" data-superficie="blanco" aria-labelledby="confianza-titulo">
+  <div class="contenedor">
+    <h2 id="confianza-titulo" class="sr-only">Por qué comprar en Ticketiando</h2>
+    <ul class="confianza__lista">
+      {
+        pilares.map((p) => (
+          <li>
+            <span class="confianza__icono">
+              <Icono nombre={p.icono} />
+            </span>
+            <div>
+              <h3>{p.titulo}</h3>
+              <p>{p.texto}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .confianza {
+    padding-block: clamp(32px, 4vw, 48px);
+    border-bottom: 1px solid var(--linea);
+  }
+  .confianza__lista {
+    display: grid;
+    gap: 24px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  @media (min-width: 720px) {
+    .confianza__lista {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 1080px) {
+    .confianza__lista {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 32px;
+    }
+    .confianza__lista li + li {
+      border-left: 1px solid var(--linea);
+      padding-left: 32px;
+    }
+  }
+  li {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .confianza__icono {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    flex: none;
+    background: var(--noche);
+    color: var(--naranja);
+  }
+  .confianza__icono :global(svg) {
+    width: 22px;
+    height: 22px;
+  }
+  h3 {
+    font-size: 1.125rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  p {
+    font-size: 0.9375rem;
+    color: var(--texto-2);
+    line-height: 1.5;
+  }
+</style>

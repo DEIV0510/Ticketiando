@@ -1,0 +1,258 @@
+---
+// Tarjeta con forma de boleta: arte + información | perforación | talón con precio y compra.
+import { Picture } from 'astro:assets';
+import Icono from './Icono.astro';
+import PrecioDesde from './PrecioDesde.astro';
+import type { Evento } from '../data/eventos';
+import { diaNum, mesCorto, diaSemanaCorto, finEfectivo } from '../lib/formato';
+
+interface Props {
+  evento: Evento;
+  nivel?: 'h2' | 'h3';
+}
+const { evento: e, nivel = 'h3' } = Astro.props;
+const Titulo = nivel;
+const detalle = `/eventos/${e.slug}/`;
+const claves = `${e.titulo} ${e.ciudad} ${e.lugar} ${e.categoria} ${(e.artistas ?? []).join(' ')}`;
+---
+
+<article class="boleta" data-fin={finEfectivo(e).getTime()} data-categoria={e.categoria} data-ciudad={e.ciudad} data-claves={claves}>
+  <a href={detalle} class="boleta__arte" tabindex="-1" aria-hidden="true">
+    <Picture
+      src={e.imagenes.banner}
+      alt=""
+      formats={['avif', 'webp']}
+      widths={[400, 640, 880]}
+      sizes="(min-width: 900px) 400px, 100vw"
+      loading="lazy"
+      quality={70}
+    />
+    <span class="boleta__fecha">
+      <span class="boleta__mes">{mesCorto(e.inicio)}</span>
+      <span class="boleta__dia num">{diaNum(e.inicio)}</span>
+      <span class="boleta__sem">{diaSemanaCorto(e.inicio)}</span>
+    </span>
+  </a>
+
+  <div class="boleta__info">
+    <div class="boleta__chips">
+      <span class="chip chip--venta">En venta</span>
+      <span class="chip">{e.categoria}</span>
+      {e.edadMinima && <span class="chip">{e.edadMinima}</span>}
+    </div>
+    <Titulo class="boleta__titulo">
+      <a href={detalle}>{e.titulo}</a>
+    </Titulo>
+    <ul class="boleta__meta">
+      <li><Icono nombre="ubicacion" /> {e.lugar}</li>
+      <li><Icono nombre="mapa" /> {e.ciudad}</li>
+      <li><Icono nombre="reloj" /> {e.horario}</li>
+    </ul>
+  </div>
+
+  <div class="boleta__talon perforacion">
+    <PrecioDesde evento={e} />
+    <div class="boleta__acciones">
+      <a class="btn btn--primario btn--bloque" href={e.compraUrl} target="_blank" rel="noopener" aria-label={`Comprar boletas para ${e.titulo}`}>
+        <Icono nombre="boleta" /> Comprar
+      </a>
+      <a class="enlace-flecha" href={detalle} aria-label={`Ver detalles de ${e.titulo}`}>Ver detalles <Icono nombre="flecha" /></a>
+    </div>
+  </div>
+</article>
+
+<style>
+  .boleta {
+    --fondo-tarjeta: var(--blanco);
+    position: relative;
+    display: grid;
+    background: var(--fondo-tarjeta);
+    color: var(--tinta);
+    box-shadow: var(--sombra-1);
+    transition: box-shadow 0.2s var(--curva), transform 0.2s var(--curva);
+    --texto: var(--tinta);
+    --texto-2: var(--tinta-2);
+    --linea: rgb(0 10 50 / 0.14);
+    --linea-fuerte: rgb(0 10 50 / 0.28);
+  }
+  .boleta:hover {
+    box-shadow: var(--sombra-2);
+    transform: translateY(-2px);
+  }
+  .boleta__arte {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    background: var(--noche);
+  }
+  .boleta__arte :global(img) {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    transition: transform 0.5s var(--curva);
+  }
+  .boleta:hover .boleta__arte :global(img) {
+    transform: scale(1.03);
+  }
+  .boleta__fecha {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    display: grid;
+    justify-items: center;
+    min-width: 64px;
+    padding: 8px 10px 7px;
+    background: var(--blanco);
+    color: var(--noche);
+    box-shadow: 0 6px 18px rgb(0 0 0 / 0.25);
+    line-height: 1;
+    text-transform: uppercase;
+  }
+  .boleta__mes {
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    color: var(--naranja-oscuro);
+  }
+  .boleta__dia {
+    font-size: 2rem;
+    font-weight: 900;
+    font-stretch: var(--muy-estrecha);
+    margin: 2px 0;
+  }
+  .boleta__sem {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+  }
+  .boleta__info {
+    display: grid;
+    gap: 12px;
+    align-content: start;
+    padding: 20px 20px 22px;
+  }
+  .boleta__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .boleta__titulo {
+    font-size: clamp(1.625rem, 2.6vw, 2.125rem);
+    font-weight: 900;
+    font-stretch: var(--muy-estrecha);
+    text-transform: uppercase;
+    line-height: 0.95;
+  }
+  .boleta__titulo a {
+    text-decoration: none;
+  }
+  .boleta__titulo a::after {
+    /* toda la zona de info es clicable sin anidar enlaces */
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+  .boleta__titulo a:hover {
+    color: var(--naranja-oscuro);
+  }
+  .boleta__meta {
+    display: grid;
+    gap: 6px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 0.9375rem;
+    color: var(--texto-2);
+  }
+  .boleta__meta li {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    line-height: 1.35;
+  }
+  .boleta__meta :global(svg) {
+    width: 18px;
+    height: 18px;
+    flex: none;
+    color: var(--naranja-oscuro);
+    margin-top: 1px;
+  }
+  .boleta__talon {
+    --fondo: var(--papel);
+    display: grid;
+    gap: 16px;
+    align-content: center;
+    padding: 22px 20px 22px;
+    margin: 0;
+    background: color-mix(in srgb, var(--papel) 55%, var(--blanco));
+  }
+  /* En móvil la perforación es horizontal */
+  .boleta__talon.perforacion {
+    border-left: 0;
+    border-top: 2px dashed var(--linea-fuerte);
+  }
+  .boleta__talon.perforacion::before,
+  .boleta__talon.perforacion::after {
+    top: -13px;
+    bottom: auto;
+  }
+  .boleta__talon.perforacion::before {
+    left: -13px;
+  }
+  .boleta__talon.perforacion::after {
+    left: auto;
+    right: -13px;
+  }
+  .boleta__acciones {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: 6px;
+    justify-items: start;
+  }
+  .boleta__acciones .btn {
+    position: relative;
+    z-index: 1;
+  }
+  .boleta__acciones .enlace-flecha {
+    border-bottom-color: transparent;
+    font-size: 0.875rem;
+  }
+  .boleta__chips,
+  .boleta__meta {
+    position: relative;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  @media (min-width: 900px) {
+    .boleta {
+      grid-template-columns: minmax(0, 400px) minmax(0, 1fr) 250px;
+    }
+    .boleta__info {
+      padding: 26px 28px;
+      align-content: center;
+    }
+    .boleta__talon {
+      padding: 26px 24px;
+    }
+    .boleta__talon.perforacion {
+      border-top: 0;
+      border-left: 2px dashed var(--linea-fuerte);
+    }
+    .boleta__talon.perforacion::before,
+    .boleta__talon.perforacion::after {
+      left: -13px;
+      right: auto;
+    }
+    .boleta__talon.perforacion::before {
+      top: -13px;
+    }
+    .boleta__talon.perforacion::after {
+      top: auto;
+      bottom: -13px;
+    }
+  }
+</style>

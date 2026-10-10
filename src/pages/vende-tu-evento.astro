@@ -1,0 +1,242 @@
+---
+import Base from '../layouts/Base.astro';
+import Icono from '../components/Icono.astro';
+import FormularioWhatsApp from '../components/FormularioWhatsApp.astro';
+import { CONTACTO, EMPRESA } from '../data/sitio';
+
+const beneficios = [
+  { icono: 'boleta' as const, titulo: 'Venta en línea 24/7', texto: 'Tus asistentes compran a cualquier hora del día desde ticketiando.com y nuestra plataforma de venta.' },
+  { icono: 'edificio' as const, titulo: 'Canales físicos', texto: 'Habilitamos puntos de venta físicos según la demanda de tu evento y las necesidades del mercado.' },
+  { icono: 'escudo' as const, titulo: 'Seguridad transaccional', texto: 'Pagos con PSE y tarjetas a través de Mercado Pago, sobre una plataforma con estándares de tecnología y seguridad.' },
+  { icono: 'megafono' as const, titulo: 'Vitrina para tu evento', texto: 'Ficha con precios por localidad, información importante, mapa y código PULEP, lista para compartir en redes.' },
+];
+const ORGANIZADORES = ['Live Concerts Latam', 'LPC Producciones', 'Alpha Musik Colombia'];
+---
+
+<Base
+  titulo="Vende tu evento"
+  descripcion="Vende la boletería de tu concierto, festival, fiesta o show con Ticketiando: venta en línea y en canales físicos en cualquier parte de Colombia."
+>
+  <section class="cab" data-superficie="noche">
+    <div class="contenedor cab__rejilla">
+      <div class="cab__texto">
+        <p class="antetitulo">Para organizadores</p>
+        <h1 class="titulo-seccion cab__titulo">Vende tu evento con Ticketiando</h1>
+        <p class="entrada">
+          Ofrecemos a empresarios una alternativa de venta de boletería en línea y fuera de línea en cualquier parte del país. Cuéntanos de tu evento y te contactamos.
+        </p>
+        <div class="cab__ctas">
+          <a class="btn btn--primario btn--grande" href="#formulario">Cuéntanos de tu evento <Icono nombre="flecha" /></a>
+          <a class="btn btn--contorno btn--grande" href={`${CONTACTO.whatsapp.href}?text=${encodeURIComponent('Hola Ticketiando, quiero vender la boletería de mi evento.')}`} target="_blank" rel="noopener"><Icono nombre="whatsapp" /> {CONTACTO.whatsapp.texto}</a>
+        </div>
+      </div>
+      <div class="cab__aliados">
+        <p>Han vendido con nosotros</p>
+        <ul>{ORGANIZADORES.map((o) => <li>{o}</li>)}</ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="seccion" data-superficie="papel" aria-labelledby="beneficios">
+    <div class="contenedor">
+      <div class="cabecera-seccion">
+        <p class="antetitulo">Lo que obtienes</p>
+        <h2 id="beneficios" class="titulo-seccion">Tu boletería, en buenas manos</h2>
+      </div>
+      <ul class="beneficios">
+        {
+          beneficios.map((b) => (
+            <li>
+              <span class="beneficios__icono">
+                <Icono nombre={b.icono} />
+              </span>
+              <h3>{b.titulo}</h3>
+              <p>{b.texto}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="seccion" data-superficie="blanco" id="formulario" aria-labelledby="form-titulo">
+    <div class="contenedor form-rejilla">
+      <div class="form-intro">
+        <p class="antetitulo">Formulario</p>
+        <h2 id="form-titulo" class="titulo-seccion">Cuéntanos de tu evento</h2>
+        <p class="entrada">Con estos datos revisamos tu evento y te contactamos. Entre más detalle, mejor.</p>
+        <ul class="form-intro__datos">
+          <li><Icono nombre="telefono" /> <a href={CONTACTO.telefonoFijo.href}>{CONTACTO.telefonoFijo.texto}</a></li>
+          <li><Icono nombre="correo" /> <a href={CONTACTO.correo.href}>{CONTACTO.correo.texto}</a></li>
+          <li><Icono nombre="ubicacion" /> {EMPRESA.direccion}</li>
+        </ul>
+      </div>
+      <FormularioWhatsApp
+        id="vende"
+        encabezadoMensaje="Hola Ticketiando, quiero vender la boletería de mi evento:"
+        textoBoton="Enviar por WhatsApp"
+        campos={[
+          { nombre: 'nombre', etiqueta: 'Nombre', requerido: true, autocompletar: 'given-name' },
+          { nombre: 'apellidos', etiqueta: 'Apellidos', autocompletar: 'family-name' },
+          { nombre: 'correo', etiqueta: 'Correo electrónico', tipo: 'email', requerido: true, autocompletar: 'email' },
+          { nombre: 'telefono', etiqueta: 'Número de contacto', tipo: 'tel', requerido: true, autocompletar: 'tel' },
+          { nombre: 'tipo', etiqueta: 'Tipo de evento', tipo: 'select', opciones: ['Concierto', 'Festival', 'Fiesta', 'Teatro o stand-up', 'Familiar o infantil', 'Deportivo', 'Otro'] },
+          { nombre: 'fecha', etiqueta: 'Fecha tentativa', tipo: 'date' },
+          { nombre: 'ciudad', etiqueta: 'Ciudad del evento', autocompletar: 'address-level2' },
+          { nombre: 'lugar', etiqueta: 'Lugar del evento' },
+          { nombre: 'aforo', etiqueta: 'Capacidad o aforo', tipo: 'number', ayuda: 'Número aproximado de asistentes.' },
+          { nombre: 'info', etiqueta: 'Información adicional', tipo: 'textarea', ayuda: 'Artistas, localidades que imaginas, si ya tienes PULEP, etc.' },
+        ]}
+      />
+    </div>
+  </section>
+</Base>
+
+<style>
+  .cab {
+    padding: clamp(40px, 7vw, 96px) 0;
+    background:
+      radial-gradient(60% 120% at 100% 0%, rgb(255 81 0 / 0.22), transparent 60%),
+      var(--noche);
+  }
+  .cab__rejilla {
+    display: grid;
+    gap: 40px;
+  }
+  @media (min-width: 1080px) {
+    .cab__rejilla {
+      grid-template-columns: 1.5fr 0.8fr;
+      align-items: end;
+      gap: 72px;
+    }
+  }
+  .cab__texto {
+    display: grid;
+    gap: 18px;
+  }
+  .cab__titulo {
+    font-size: clamp(2.75rem, 7vw, 5.5rem);
+  }
+  .cab__ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 6px;
+  }
+  .cab__aliados {
+    border-top: 3px solid var(--naranja);
+    padding-top: 16px;
+  }
+  .cab__aliados p {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--texto-2);
+    margin-bottom: 8px;
+  }
+  .cab__aliados ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .cab__aliados li {
+    font-size: clamp(1.5rem, 2.4vw, 2rem);
+    font-weight: 900;
+    font-stretch: var(--muy-estrecha);
+    text-transform: uppercase;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--linea);
+  }
+  .beneficios {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 16px;
+  }
+  @media (min-width: 720px) {
+    .beneficios {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (min-width: 1080px) {
+    .beneficios {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  .beneficios li {
+    display: grid;
+    gap: 10px;
+    align-content: start;
+    padding: 24px;
+    background: var(--blanco);
+  }
+  .beneficios__icono {
+    display: inline-flex;
+    width: 48px;
+    height: 48px;
+    align-items: center;
+    justify-content: center;
+    background: var(--noche);
+    color: var(--naranja);
+    margin-bottom: 6px;
+  }
+  .beneficios__icono :global(svg) {
+    width: 24px;
+    height: 24px;
+  }
+  .beneficios h3 {
+    font-size: 1.375rem;
+    text-transform: uppercase;
+  }
+  .beneficios p {
+    color: var(--texto-2);
+  }
+  .form-rejilla {
+    display: grid;
+    gap: 36px;
+  }
+  @media (min-width: 1080px) {
+    .form-rejilla {
+      grid-template-columns: 0.8fr 1.4fr;
+      gap: 72px;
+      align-items: start;
+    }
+    .form-intro {
+      position: sticky;
+      top: calc(var(--alto-header) + 32px);
+    }
+  }
+  .form-intro {
+    display: grid;
+    gap: 16px;
+  }
+  .form-intro__datos {
+    list-style: none;
+    margin: 8px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+  }
+  .form-intro__datos li {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    line-height: 1.4;
+  }
+  .form-intro__datos :global(svg) {
+    width: 18px;
+    height: 18px;
+    flex: none;
+    color: var(--naranja-oscuro);
+    margin-top: 2px;
+  }
+  .form-intro__datos a {
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .form-intro__datos a:hover {
+    text-decoration: underline;
+  }
+</style>

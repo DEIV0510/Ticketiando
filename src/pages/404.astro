@@ -1,0 +1,38 @@
+---
+import Base from '../layouts/Base.astro';
+import Icono from '../components/Icono.astro';
+---
+
+<Base titulo="Página no encontrada" descripcion="La página que buscas no existe o cambió de dirección.">
+  <section class="nf" data-superficie="noche">
+    <div class="contenedor">
+      <p class="antetitulo">Error 404</p>
+      <h1 class="titulo-seccion">Esta boleta no existe</h1>
+      <p class="entrada">La página que buscas cambió de dirección o ya no está disponible. Si llegaste desde un enlace que te enviaron, verifica que sea de un canal oficial.</p>
+      <div class="nf__ctas">
+        <a class="btn btn--primario btn--grande" href="/eventos/"><Icono nombre="boleta" /> Ver eventos</a>
+        <a class="btn btn--contorno btn--grande" href="/ayuda/#compra-segura">Canales oficiales</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .nf {
+    padding: clamp(64px, 12vw, 160px) 0;
+  }
+  .nf .contenedor {
+    display: grid;
+    gap: 18px;
+    justify-items: start;
+  }
+  .nf h1 {
+    font-size: clamp(3rem, 9vw, 7rem);
+  }
+  .nf__ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 8px;
+  }
+</style>

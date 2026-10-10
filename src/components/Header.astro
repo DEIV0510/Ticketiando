@@ -1,0 +1,546 @@
+---
+import Logo from './Logo.astro';
+import Icono from './Icono.astro';
+import { NAV, CONTACTO, CANALES_OFICIALES } from '../data/sitio';
+import { EVENTOS, REALIZADOS } from '../data/eventos';
+import { esProximo, ordenarPorFecha, fechaMedia } from '../lib/formato';
+
+const ruta = Astro.url.pathname;
+const activo = (href: string) => {
+  const base = href.split('#')[0];
+  if (href.includes('#')) return false;
+  return base === '/' ? ruta === '/' : ruta.startsWith(base);
+};
+
+const indice = [
+  ...ordenarPorFecha(EVENTOS.filter((e) => esProximo(e))).map((e) => ({
+    t: e.titulo,
+    s: `${fechaMedia(e.inicio)} · ${e.ciudad}`,
+    k: `${e.titulo} ${e.ciudad} ${e.lugar} ${e.categoria} ${(e.artistas ?? []).join(' ')}`,
+    h: `/eventos/${e.slug}/`,
+    p: true,
+  })),
+  ...REALIZADOS.map((r) => ({
+    t: r.titulo,
+    s: `Realizado · ${r.ciudad}`,
+    k: `${r.titulo} ${r.ciudad} ${r.lugar} ${r.categoria}`,
+    h: '/eventos/#realizados',
+    p: false,
+  })),
+];
+---
+
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+
+<div class="aviso" data-superficie="noche">
+  <div class="contenedor aviso__in">
+    <Icono nombre="escudo" class="aviso__icono" />
+    <p>
+      <strong>Compra solo en canales oficiales<span class="aviso__largo">.</span></strong>
+      <span class="aviso__largo">Ticketiando no vende por cuentas con nombres parecidos ni por transferencias a personas.</span>
+    </p>
+    <a href="/ayuda/#compra-segura" class="aviso__enlace"><span class="aviso__largo">Así evitas estafas</span><span class="aviso__corto">Ver más</span> <Icono nombre="flecha" /></a>
+  </div>
+</div>
+
+<header class="cabecera" data-superficie="noche">
+  <div class="contenedor cabecera__in">
+    <a href="/" class="cabecera__logo" aria-label="Ticketiando, ir al inicio">
+      <Logo ancho={168} prioridad class="cabecera__img" />
+    </a>
+
+    <nav class="cabecera__nav" aria-label="Principal">
+      <ul>
+        {
+          NAV.map((n) => (
+            <li>
+              <a href={n.href} aria-current={activo(n.href) ? 'page' : undefined}>
+                {n.texto}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="cabecera__acciones">
+      <button type="button" class="icono-btn" data-abrir="buscador" aria-label="Buscar eventos" aria-haspopup="dialog">
+        <Icono nombre="buscar" />
+        <span class="icono-btn__texto">Buscar</span>
+      </button>
+      <a href="/vende-tu-evento/" class="btn btn--primario cabecera__cta" aria-current={ruta.startsWith('/vende-tu-evento') ? 'page' : undefined}>Vende tu evento</a>
+      <button type="button" class="icono-btn cabecera__menu" data-abrir="menu" aria-label="Abrir menú" aria-haspopup="dialog">
+        <Icono nombre="menu" />
+      </button>
+    </div>
+  </div>
+</header>
+
+<dialog id="menu" class="hoja hoja--menu" aria-label="Menú" data-superficie="noche">
+  <div class="hoja__barra">
+    <Logo ancho={140} />
+    <button type="button" class="icono-btn" data-cerrar aria-label="Cerrar menú"><Icono nombre="cerrar" /></button>
+  </div>
+  <nav aria-label="Menú móvil" class="hoja__nav">
+    <a href="/" aria-current={ruta === '/' ? 'page' : undefined}>Inicio</a>
+    {NAV.map((n) => <a href={n.href} aria-current={activo(n.href) ? 'page' : undefined}>{n.texto}</a>)}
+    <a href="/vende-tu-evento/" aria-current={ruta.startsWith('/vende-tu-evento') ? 'page' : undefined}>Vende tu evento</a>
+    <a href="/contacto/" aria-current={ruta.startsWith('/contacto') ? 'page' : undefined}>Contacto</a>
+  </nav>
+  <div class="hoja__pie">
+    <a class="btn btn--primario btn--bloque" href="/eventos/"><Icono nombre="boleta" /> Ver eventos</a>
+    <a class="btn btn--contorno btn--bloque" href={CONTACTO.whatsapp.href} target="_blank" rel="noopener"><Icono nombre="whatsapp" /> WhatsApp {CONTACTO.whatsapp.texto}</a>
+    <p class="hoja__nota">Canales oficiales: {CANALES_OFICIALES.map((c) => c.valor).join(' · ')}</p>
+  </div>
+</dialog>
+
+<dialog id="buscador" class="hoja hoja--buscador" aria-label="Buscar eventos" data-superficie="noche">
+  <form class="buscador" role="search" action="/eventos/" method="get">
+    <label for="q-global" class="sr-only">Busca por evento, artista, ciudad o lugar</label>
+    <Icono nombre="buscar" class="buscador__lupa" />
+    <input id="q-global" name="q" type="search" autocomplete="off" placeholder="Evento, artista, ciudad o lugar" enterkeyhint="search" />
+    <button type="button" class="icono-btn" data-cerrar aria-label="Cerrar búsqueda"><Icono nombre="cerrar" /></button>
+  </form>
+  <div class="buscador__res" aria-live="polite">
+    <p class="buscador__titulo" data-titulo>Próximos eventos</p>
+    <ul data-lista></ul>
+    <p class="buscador__vacio" data-vacio hidden>No encontramos eventos con esa búsqueda. Mira <a href="/eventos/">todos los eventos</a>.</p>
+  </div>
+  <script type="application/json" id="indice-busqueda" set:html={JSON.stringify(indice)} />
+</dialog>
+
+<style>
+  .aviso {
+    --fondo: var(--noche-profunda);
+    font-size: 0.8125rem;
+    border-bottom: 1px solid rgb(255 255 255 / 0.08);
+  }
+  .aviso__in {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 40px;
+    padding-block: 6px;
+  }
+  .aviso p {
+    flex: 1;
+    min-width: 0;
+    color: var(--texto-2);
+    line-height: 1.35;
+  }
+  .aviso strong {
+    color: var(--blanco);
+    font-weight: 650;
+  }
+  .aviso__icono {
+    width: 18px;
+    height: 18px;
+    color: var(--naranja);
+    flex: none;
+  }
+  .aviso__largo {
+    display: none;
+  }
+  .aviso__enlace {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 700;
+    color: var(--naranja-claro);
+    text-decoration: none;
+    white-space: nowrap;
+    min-height: 32px;
+  }
+  .aviso__enlace :global(svg) {
+    width: 14px;
+    height: 14px;
+  }
+  @media (min-width: 900px) {
+    .aviso__largo {
+      display: inline;
+    }
+    .aviso__corto {
+      display: none;
+    }
+  }
+  @media (max-width: 420px) {
+    .aviso p {
+      font-size: 0.75rem;
+    }
+  }
+
+  .cabecera {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-header);
+    border-bottom: 1px solid rgb(255 255 255 / 0.1);
+    background: rgb(0 10 50 / 0.96);
+  }
+  @supports (backdrop-filter: blur(1px)) {
+    .cabecera {
+      background: rgb(0 10 50 / 0.86);
+      backdrop-filter: blur(14px) saturate(1.4);
+    }
+  }
+  .cabecera__in {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    height: var(--alto-header);
+  }
+  .cabecera__logo {
+    display: block;
+    flex: none;
+    padding-block: 8px;
+  }
+  .cabecera__img {
+    width: 136px;
+    height: auto;
+  }
+  .cabecera__nav {
+    display: none;
+    margin-right: auto;
+  }
+  .cabecera__nav ul {
+    display: flex;
+    gap: 4px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .cabecera__nav a {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 12px;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    text-decoration: none;
+    color: var(--texto-2);
+    transition: color 0.15s;
+  }
+  .cabecera__nav a:hover,
+  .cabecera__nav a[aria-current='page'] {
+    color: var(--blanco);
+  }
+  .cabecera__nav a[aria-current='page']::after {
+    content: '';
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 4px;
+    height: 3px;
+    background: var(--naranja);
+  }
+  .cabecera__acciones {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+  }
+  .cabecera__cta {
+    display: none;
+    --btn-alto: 44px;
+    font-size: 0.8125rem;
+    padding: 0 16px;
+  }
+  .icono-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 10px;
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--texto);
+  }
+  .icono-btn:hover {
+    border-color: var(--linea-fuerte);
+  }
+  .icono-btn :global(svg) {
+    width: 22px;
+    height: 22px;
+  }
+  .icono-btn__texto {
+    display: none;
+    font-weight: 600;
+    font-size: 0.9375rem;
+  }
+  @media (min-width: 560px) {
+    .cabecera__cta {
+      display: inline-flex;
+    }
+  }
+  @media (min-width: 768px) {
+    .cabecera__img {
+      width: 168px;
+    }
+  }
+  @media (min-width: 1080px) {
+    .cabecera__nav {
+      display: block;
+    }
+    .cabecera__menu {
+      display: none;
+    }
+    .cabecera__logo {
+      margin-right: 8px;
+    }
+    .cabecera__acciones {
+      margin-left: 0;
+    }
+  }
+  @media (min-width: 1240px) {
+    .icono-btn__texto {
+      display: inline;
+    }
+  }
+
+  /* Hojas (dialog nativo: capa superior, sin pelear con el z-index del header) */
+  .hoja {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    max-width: none;
+    max-height: none;
+    width: 100%;
+    color: var(--texto);
+    background: var(--fondo);
+  }
+  .hoja::backdrop {
+    background: rgb(0 6 31 / 0.72);
+  }
+  .hoja--menu {
+    height: 100dvh;
+    margin-left: auto;
+    width: min(420px, 100%);
+    display: none;
+    flex-direction: column;
+  }
+  .hoja--menu[open] {
+    display: flex;
+    animation: entra-der 0.26s var(--curva);
+  }
+  .hoja__barra {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px var(--margen);
+    border-bottom: 1px solid var(--linea);
+    min-height: var(--alto-header);
+  }
+  .hoja__barra :global(img) {
+    width: 132px;
+  }
+  .hoja__nav {
+    display: grid;
+    padding: 12px var(--margen);
+    overflow-y: auto;
+  }
+  .hoja__nav a {
+    display: flex;
+    align-items: center;
+    min-height: 56px;
+    font-size: 1.5rem;
+    font-weight: 800;
+    font-stretch: var(--estrecha);
+    text-transform: uppercase;
+    text-decoration: none;
+    border-bottom: 1px solid var(--linea);
+  }
+  .hoja__nav a[aria-current='page'] {
+    color: var(--naranja-claro);
+  }
+  .hoja__pie {
+    margin-top: auto;
+    display: grid;
+    gap: 10px;
+    padding: 20px var(--margen) max(20px, env(safe-area-inset-bottom));
+  }
+  .hoja__nota {
+    font-size: 0.8125rem;
+    color: var(--texto-2);
+  }
+
+  .hoja--buscador {
+    margin-top: 0;
+    height: auto;
+    max-height: 100dvh;
+    overflow-y: auto;
+  }
+  .hoja--buscador[open] {
+    animation: entra-arriba 0.22s var(--curva);
+  }
+  .buscador {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: calc(var(--contenedor) + var(--margen) * 2);
+    margin-inline: auto;
+    padding: 14px var(--margen);
+    border-bottom: 1px solid var(--linea);
+  }
+  .buscador__lupa {
+    width: 24px;
+    height: 24px;
+    color: var(--naranja);
+    flex: none;
+  }
+  .buscador input {
+    flex: 1;
+    min-width: 0;
+    min-height: 52px;
+    background: transparent;
+    border: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    outline: none;
+  }
+  .buscador input::placeholder {
+    color: rgb(255 255 255 / 0.5);
+  }
+  .buscador:focus-within {
+    border-bottom-color: var(--naranja);
+  }
+  .buscador__res {
+    max-width: calc(var(--contenedor) + var(--margen) * 2);
+    margin-inline: auto;
+    padding: 16px var(--margen) 28px;
+  }
+  .buscador__titulo {
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--texto-2);
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .buscador ul,
+  .buscador__res ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .buscador__res :global(li a) {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    min-height: 56px;
+    padding: 10px 0;
+    text-decoration: none;
+    border-bottom: 1px solid var(--linea);
+  }
+  .buscador__res :global(li a:hover strong) {
+    color: var(--naranja-claro);
+  }
+  .buscador__res :global(li strong) {
+    display: block;
+    font-weight: 750;
+    font-size: 1.0625rem;
+  }
+  .buscador__res :global(li span) {
+    font-size: 0.875rem;
+    color: var(--texto-2);
+  }
+  .buscador__res :global(li em) {
+    font-style: normal;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border: 1px solid var(--linea-fuerte);
+    white-space: nowrap;
+  }
+  .buscador__res :global(li em.venta) {
+    background: var(--naranja);
+    border-color: var(--naranja);
+    color: var(--noche);
+  }
+  .buscador__vacio a {
+    color: var(--naranja-claro);
+  }
+
+  @keyframes entra-der {
+    from {
+      transform: translateX(24px);
+      opacity: 0;
+    }
+  }
+  @keyframes entra-arriba {
+    from {
+      transform: translateY(-12px);
+      opacity: 0;
+    }
+  }
+</style>
+
+<script>
+  const abrir = (id: string, disparador: HTMLElement) => {
+    const d = document.getElementById(id) as HTMLDialogElement | null;
+    if (!d) return;
+    d.showModal();
+    document.documentElement.style.overflow = 'hidden';
+    d.addEventListener(
+      'close',
+      () => {
+        document.documentElement.style.overflow = '';
+        disparador.focus();
+      },
+      { once: true },
+    );
+    if (id === 'buscador') (d.querySelector('input') as HTMLInputElement)?.focus();
+  };
+
+  document.querySelectorAll<HTMLElement>('[data-abrir]').forEach((b) => b.addEventListener('click', () => abrir(b.dataset.abrir!, b)));
+
+  document.querySelectorAll<HTMLDialogElement>('dialog.hoja').forEach((d) => {
+    d.querySelectorAll('[data-cerrar]').forEach((b) => b.addEventListener('click', () => d.close()));
+    // Clic en el velo (fuera del contenido) cierra
+    d.addEventListener('click', (ev) => {
+      if (ev.target === d) d.close();
+    });
+    d.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => d.close()));
+  });
+
+  // Buscador
+  type Item = { t: string; s: string; k: string; h: string; p: boolean };
+  const datos: Item[] = JSON.parse(document.getElementById('indice-busqueda')?.textContent || '[]');
+  const lista = document.querySelector('[data-lista]') as HTMLUListElement;
+  const vacio = document.querySelector('[data-vacio]') as HTMLElement;
+  const titulo = document.querySelector('[data-titulo]') as HTMLElement;
+  const input = document.getElementById('q-global') as HTMLInputElement;
+  const norm = (s: string) => s.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
+  const pintar = (q: string) => {
+    const nq = norm(q.trim());
+    const res = nq ? datos.filter((d) => norm(d.k).includes(nq)) : datos.filter((d) => d.p);
+    titulo.textContent = nq ? `${res.length} resultado${res.length === 1 ? '' : 's'}` : 'Próximos eventos';
+    vacio.hidden = res.length > 0;
+    lista.replaceChildren(
+      ...res.map((d) => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = d.h;
+        const izq = document.createElement('div');
+        const t = document.createElement('strong');
+        t.textContent = d.t;
+        const s = document.createElement('span');
+        s.textContent = d.s;
+        izq.append(t, s);
+        const em = document.createElement('em');
+        em.textContent = d.p ? 'En venta' : 'Realizado';
+        if (d.p) em.className = 'venta';
+        a.append(izq, em);
+        a.addEventListener('click', () => (document.getElementById('buscador') as HTMLDialogElement).close());
+        li.append(a);
+        return li;
+      }),
+    );
+  };
+  input?.addEventListener('input', () => pintar(input.value));
+  pintar('');
+</script>

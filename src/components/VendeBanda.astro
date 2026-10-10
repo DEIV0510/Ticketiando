@@ -1,0 +1,123 @@
+---
+import Icono from './Icono.astro';
+
+// Organizadores que figuran como responsables en eventos publicados en ticketiando.com
+const ORGANIZADORES = ['Live Concerts Latam', 'LPC Producciones', 'Alpha Musik Colombia'];
+---
+
+<section class="vende" aria-labelledby="vende-titulo">
+  <div class="contenedor vende__in">
+    <div class="vende__texto">
+      <p class="antetitulo">Para organizadores</p>
+      <h2 id="vende-titulo" class="titulo-seccion">Vende tu evento con Ticketiando</h2>
+      <p class="entrada">
+        Venta de boletería en línea y en canales físicos en cualquier parte del país. Habilitamos puntos físicos según la demanda de tu evento, sobre una plataforma con seguridad transaccional.
+      </p>
+      <ul class="vende__lista">
+        <li><Icono nombre="boleta" /> Venta en línea las 24 horas</li>
+        <li><Icono nombre="edificio" /> Canales físicos según la demanda</li>
+        <li><Icono nombre="escudo" /> Pagos seguros y soporte al comprador</li>
+      </ul>
+      <div class="vende__ctas">
+        <a class="btn btn--noche btn--grande" href="/vende-tu-evento/">Cuéntanos de tu evento <Icono nombre="flecha" /></a>
+      </div>
+    </div>
+    <div class="vende__aliados">
+      <p>Han vendido con nosotros</p>
+      <ul>
+        {ORGANIZADORES.map((o) => <li>{o}</li>)}
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .vende {
+    --texto: var(--noche);
+    --texto-2: rgb(0 10 50 / 0.82);
+    --acento-texto: var(--noche);
+    --linea: rgb(0 10 50 / 0.2);
+    background: var(--naranja);
+    color: var(--noche);
+    padding-block: clamp(56px, 7vw, 96px);
+    position: relative;
+    overflow: hidden;
+  }
+  .vende::after {
+    /* muescas de boleta en los bordes de la banda */
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(circle 18px at 0 50%, var(--papel) 98%, transparent) left center / 36px 36px no-repeat,
+      radial-gradient(circle 18px at 100% 50%, var(--papel) 98%, transparent) right center / 36px 36px no-repeat;
+  }
+  .vende__in {
+    display: grid;
+    gap: 40px;
+    position: relative;
+    z-index: 1;
+  }
+  @media (min-width: 1080px) {
+    .vende__in {
+      grid-template-columns: 1.4fr 0.8fr;
+      align-items: end;
+      gap: 72px;
+    }
+  }
+  .vende__texto {
+    display: grid;
+    gap: 18px;
+  }
+  .vende__lista {
+    list-style: none;
+    margin: 6px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+    font-weight: 700;
+  }
+  .vende__lista li {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .vende__lista :global(svg) {
+    width: 20px;
+    height: 20px;
+    flex: none;
+  }
+  .vende__ctas {
+    margin-top: 8px;
+  }
+  .vende .btn--noche:focus-visible {
+    outline-color: var(--noche);
+  }
+  .vende__aliados {
+    border-top: 3px solid var(--noche);
+    padding-top: 18px;
+  }
+  .vende__aliados p {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .vende__aliados ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+  }
+  .vende__aliados li {
+    font-size: clamp(1.5rem, 2.4vw, 2rem);
+    font-weight: 900;
+    font-stretch: var(--muy-estrecha);
+    text-transform: uppercase;
+    line-height: 1.1;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--linea);
+  }
+</style>

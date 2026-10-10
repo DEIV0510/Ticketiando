@@ -1,0 +1,1109 @@
+---
+import { Picture, Image, getImage } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import Icono from '../../components/Icono.astro';
+import PrecioDesde from '../../components/PrecioDesde.astro';
+import Cuenta from '../../components/Cuenta.astro';
+import Preguntas from '../../components/Preguntas.astro';
+import TarjetaEvento from '../../components/TarjetaEvento.astro';
+import { EVENTOS, type Evento } from '../../data/eventos';
+import { CONTACTO, EMPRESA } from '../../data/sitio';
+import {
+  pesos,
+  fechaLarga,
+  diaNum,
+  mesCorto,
+  diaSemanaCorto,
+  limitesEtapa,
+  etapaVigente,
+  esProximo,
+  mapsUrl,
+  googleCalendarUrl,
+  desdeEnEtapa,
+  ordenarPorFecha,
+} from '../../lib/formato';
+
+export function getStaticPaths() {
+  return EVENTOS.map((e) => ({ params: { slug: e.slug }, props: { evento: e } }));
+}
+
+interface Props {
+  evento: Evento;
+}
+const { evento: e } = Astro.props;
+const url = new URL(Astro.url.pathname, Astro.site).href;
+const vigente = etapaVigente(e);
+const og = await getImage({ src: e.imagenes.banner, width: 1200, format: 'jpg', quality: 80 });
+const otros = ordenarPorFecha(EVENTOS.filter((x) => x.slug !== e.slug && esProximo(x)));
+
+const info = [
+  { icono: 'calendario', titulo: 'Fecha', valor: fechaLarga(e.inicio) },
+  { icono: 'reloj', titulo: 'Hora', valor: e.horario },
+  { icono: 'reloj', titulo: 'Apertura de puertas', valor: e.apertura },
+  { icono: 'ubicacion', titulo: 'Lugar', valor: `${e.lugar}, ${e.ciudad}` },
+  { icono: 'identificacion', titulo: 'Edad mínima', valor: e.edadMinima },
+  { icono: 'silla', titulo: 'Acomodación', valor: e.acomodacion },
+  { icono: 'comida', titulo: 'Venta de comida', valor: e.ventaComida },
+  { icono: 'copa', titulo: 'Venta de licor', valor: e.ventaLicor },
+  { icono: 'accesible', titulo: 'Movilidad reducida', valor: e.movilidadReducida },
+  { icono: 'corazon', titulo: 'Mujeres en gestación', valor: e.gestantes },
+].filter((i) => i.valor) as { icono: 'calendario'; titulo: string; valor: string }[];
+
+const desdeVigente = vigente > -1 ? desdeEnEtapa(e, vigente) : null;
+const datosEvento = {
+  '@context': 'https://schema.org',
+  '@type': 'Event',
+  name: e.titulo,
+  description: e.descripcion.join(' '),
+  startDate: e.inicio,
+  ...(e.fin ? { endDate: e.fin } : {}),
+  eventStatus: 'https://schema.org/EventScheduled',
+  eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+  image: [new URL(og.src, Astro.site).href],
+  location: { '@type': 'Place', name: e.lugar, address: { '@type': 'PostalAddress', addressLocality: e.ciudad, addressCountry: 'CO' } },
+  organizer: { '@type': 'Organization', name: e.responsable.nombre },
+  ...(desdeVigente
+    ? {
+        offers: {
+          '@type': 'AggregateOffer',
+          lowPrice: desdeVigente,
+          priceCurrency: 'COP',
+          availability: 'https://schema.org/InStock',
+          url: e.compraUrl,
+          validFrom: `${e.etapas[vigente].desde}T00:00:00-05:00`,
+        },
+      }
+    : {}),
+};
+const migas = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Inicio', item: new URL('/', Astro.site).href },
+    { '@type': 'ListItem', position: 2, name: 'Eventos', item: new URL('/eventos/', Astro.site).href },
+    { '@type': 'ListItem', position: 3, name: e.titulo, item: url },
+  ],
+};
+const textoCompartir = `${e.titulo} · ${fechaLarga(e.inicio)} · ${e.lugar}, ${e.ciudad}. Boletas oficiales en Ticketiando:`;
+---
+
+<Base
+  titulo={`${e.titulo} · ${e.ciudad} · Boletas oficiales`}
+  descripcion={`${e.bajada} ${fechaLarga(e.inicio)}, ${e.lugar}, ${e.ciudad}. Compra tus boletas oficiales en Ticketiando.`}
+  imagen={og.src}
+  datos={[datosEvento, migas]}
+  conBarraCompra
+>
+  <section class="ficha-cab" data-superficie="noche">
+    <div class="ficha-cab__fondo" style={`background-image:url(/img/fondo-${e.slug}.webp)`} aria-hidden="true"></div>
+    <div class="contenedor">
+      <nav class="migas" aria-label="Ruta">
+        <ol>
+          <li><a href="/">Inicio</a></li>
+          <li><a href="/eventos/">Eventos</a></li>
+          <li aria-current="page">{e.titulo}</li>
+        </ol>
+      </nav>
+      <div class="ficha-cab__rejilla">
+        <div class="ficha-cab__texto">
+          <div class="ficha-cab__chips">
+            <span class="chip chip--venta">En venta</span>
+            <span class="chip">{e.categoria}</span>
+            {e.edadMinima && <span class="chip">{e.edadMinima}</span>}
+          </div>
+          <h1 class="ficha-cab__titulo">{e.titulo}</h1>
+          <p class="ficha-cab__bajada">{e.bajada}</p>
+          <ul class="ficha-cab__meta">
+            <li><Icono nombre="calendario" /> <span class="mayus-inicial">{fechaLarga(e.inicio)}</span></li>
+            <li><Icono nombre="reloj" /> {e.horario}{e.apertura && <span class="ficha-cab__sub"> · puertas {e.apertura}</span>}</li>
+            <li><Icono nombre="ubicacion" /> {e.lugar}, {e.ciudad}</li>
+          </ul>
+          <Cuenta evento={e} class="ficha-cab__cuenta" />
+        </div>
+        <figure class="ficha-cab__arte">
+          <Picture
+            src={e.imagenes.banner}
+            alt={e.imagenes.bannerAlt}
+            formats={['avif', 'webp']}
+            widths={[480, 720, 960, 1280]}
+            sizes="(min-width: 1080px) 640px, 100vw"
+            loading="eager"
+            fetchpriority="high"
+            quality={74}
+          />
+          <figcaption><Icono nombre="escudo" /> Boletería oficial · PULEP {e.pulep}</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <div class="ficha" data-superficie="papel">
+    <div class="contenedor ficha__rejilla">
+      <div class="ficha__principal">
+        <section class="bloque" aria-labelledby="sobre">
+          <h2 id="sobre" class="bloque__titulo">Sobre el evento</h2>
+          <div class="bloque__texto">
+            {e.descripcion.map((p) => <p>{p}</p>)}
+          </div>
+          {
+            e.destacados && (
+              <ul class="destacados">
+                {e.destacados.map((d) => (
+                  <li>{d}</li>
+                ))}
+              </ul>
+            )
+          }
+          {
+            e.artistas && (
+              <div class="artistas">
+                <h3>
+                  <Icono nombre="musica" /> En tarima
+                </h3>
+                <ul>
+                  {e.artistas.map((a) => (
+                    <li>{a}</li>
+                  ))}
+                </ul>
+              </div>
+            )
+          }
+        </section>
+
+        <section class="bloque" aria-labelledby="precios" id="localidades">
+          <div class="bloque__cab">
+            <h2 id="precios" class="bloque__titulo">Localidades y precios</h2>
+            <p class="bloque__nota">Precios en pesos colombianos. {e.precioModo === 'servicio-incluido' ? 'Incluyen el servicio.' : 'El valor total incluye el servicio de boletería.'}</p>
+          </div>
+
+          {
+            e.precioModo === 'servicio-incluido' ? (
+              <div class="tipos">
+                {e.localidades.map((l) => (
+                  <article class="tipo" style={l.color ? `--tipo:${l.color}` : undefined}>
+                    <header class="tipo__cab">
+                      <h3>{l.nombre}</h3>
+                      {l.detalle && <p>{l.detalle}</p>}
+                    </header>
+                    <ul class="tipo__etapas">
+                      {e.etapas.map((et, i) => {
+                        const lim = limitesEtapa(et.desde, et.hasta);
+                        const p = l.precios[i];
+                        return (
+                          <li data-col-etapa data-d={lim.desde} data-h={lim.hasta} class:list={{ 'es-vigente': i === vigente }}>
+                            <span class="tipo__etapa">{et.nombre}</span>
+                            <strong class="num">{p ? pesos(p.total) : '—'}</strong>
+                            <span class="tipo__vig">Vigente</span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                    {l.incluye && (
+                      <ul class="tipo__incluye">
+                        {l.incluye.map((x) => (
+                          <li>
+                            <Icono nombre="check" /> {x}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </article>
+                ))}
+              </div>
+            ) : (
+              e.etapas.map((et, i) => {
+                const lim = limitesEtapa(et.desde, et.hasta);
+                return (
+                  <div class="tabla" data-col-etapa data-d={lim.desde} data-h={lim.hasta}>
+                    <p class="tabla__etapa">
+                      <strong>{et.nombre}</strong> · del {fechaLarga(`${et.desde}T12:00:00-05:00`).replace(/^\w+, /, '')} al {fechaLarga(`${et.hasta}T12:00:00-05:00`).replace(/^\w+, /, '')}
+                    </p>
+                    <div class="tabla__cab" aria-hidden="true">
+                      <span>Localidad</span>
+                      <span>Precio</span>
+                      <span>Servicio</span>
+                      <span>Total</span>
+                    </div>
+                    <ul class="tabla__filas">
+                      {e.localidades.map((l) => {
+                        const p = l.precios[i];
+                        return p ? (
+                          <li class="fila">
+                            <div class="fila__nombre">
+                              <strong>{l.nombre}</strong>
+                              {l.detalle && <span>{l.detalle}</span>}
+                            </div>
+                            <div class="fila__dato">
+                              <span class="fila__lbl">Precio</span>
+                              <span class="num">{pesos(p.precio)}</span>
+                            </div>
+                            <div class="fila__dato">
+                              <span class="fila__lbl">Servicio</span>
+                              <span class="num">{p.servicio !== null ? pesos(p.servicio) : '—'}</span>
+                            </div>
+                            <div class="fila__dato fila__total">
+                              <span class="fila__lbl">Total</span>
+                              <strong class="num">{pesos(p.total)}</strong>
+                            </div>
+                          </li>
+                        ) : null;
+                      })}
+                    </ul>
+                  </div>
+                );
+              })
+            )
+          }
+          <div class="bloque__cta">
+            <a class="btn btn--primario btn--grande" href={e.compraUrl} target="_blank" rel="noopener"><Icono nombre="boleta" /> Comprar boletas</a>
+            <p>Serás llevado a <strong>ventas.ticketiando.com</strong>, nuestra plataforma oficial de compra.</p>
+          </div>
+        </section>
+
+        <section class="bloque" aria-labelledby="info">
+          <h2 id="info" class="bloque__titulo">Información importante</h2>
+          <dl class="info">
+            {
+              info.map((i) => (
+                <div class="info__item">
+                  <dt>
+                    <Icono nombre={i.icono} /> {i.titulo}
+                  </dt>
+                  <dd class="mayus-inicial">{i.valor}</dd>
+                </div>
+              ))
+            }
+          </dl>
+          <a class="enlace-flecha" href={mapsUrl(e)} target="_blank" rel="noopener"><Icono nombre="mapa" /> Cómo llegar en Google Maps <Icono nombre="externo" /></a>
+        </section>
+
+        {
+          e.imagenes.mapa && (
+            <section class="bloque" aria-labelledby="mapa">
+              <h2 id="mapa" class="bloque__titulo">Mapa del evento</h2>
+              <a class="mapa" href={(await getImage({ src: e.imagenes.mapa, width: 1600, format: 'webp' })).src} target="_blank" rel="noopener">
+                <Image src={e.imagenes.mapa} alt={e.imagenes.mapaAlt ?? 'Mapa del evento'} widths={[480, 800, 1200]} sizes="(min-width: 1080px) 760px, 100vw" format="webp" loading="lazy" />
+                <span class="mapa__zoom">
+                  <Icono nombre="buscar" /> Ver en grande
+                </span>
+              </a>
+            </section>
+          )
+        }
+
+        {
+          e.preguntas && (
+            <section class="bloque" aria-labelledby="dudas">
+              <h2 id="dudas" class="bloque__titulo">Preguntas del evento</h2>
+              <Preguntas preguntas={e.preguntas} />
+            </section>
+          )
+        }
+
+        <section class="bloque" aria-labelledby="afiche">
+          <h2 id="afiche" class="bloque__titulo">Afiche oficial</h2>
+          <div class="afiches">
+            <Picture src={e.imagenes.poster} alt={e.imagenes.posterAlt} formats={['avif', 'webp']} widths={[400, 700, 1000]} sizes="(min-width: 1080px) 380px, 100vw" loading="lazy" quality={72} fallbackFormat="jpg" />
+          </div>
+        </section>
+
+        <section class="legal-evento" aria-label="Responsable del evento">
+          <dl>
+            <div><dt>Responsable</dt><dd>{e.responsable.nombre}</dd></div>
+            <div><dt>NIT</dt><dd class="num">{e.responsable.nit}</dd></div>
+            <div><dt>Código PULEP · Ministerio de Cultura</dt><dd class="num">{e.pulep}</dd></div>
+            {e.organiza && <div><dt>Organiza</dt><dd>{e.organiza}</dd></div>}
+            {
+              e.sitioOficial && (
+                <div>
+                  <dt>Sitio del evento</dt>
+                  <dd>
+                    <a href={e.sitioOficial.href} target="_blank" rel="noopener">{e.sitioOficial.texto}</a>
+                  </dd>
+                </div>
+              )
+            }
+            <div><dt>Boletería</dt><dd>{EMPRESA.razonSocial}</dd></div>
+          </dl>
+        </section>
+      </div>
+
+      <aside class="ficha__lateral" aria-label="Comprar boletas">
+        <div class="compra">
+          <div class="compra__cab">
+            <span class="compra__fecha">
+              <span class="compra__mes">{mesCorto(e.inicio)}</span>
+              <span class="compra__dia num">{diaNum(e.inicio)}</span>
+              <span class="compra__sem">{diaSemanaCorto(e.inicio)}</span>
+            </span>
+            <div>
+              <p class="compra__titulo">{e.titulo}</p>
+              <p class="compra__lugar">{e.lugar} · {e.ciudad}</p>
+            </div>
+          </div>
+          <div class="compra__cuerpo perforacion perforacion--h">
+            <PrecioDesde evento={e} />
+            <a class="btn btn--primario btn--grande btn--bloque" href={e.compraUrl} target="_blank" rel="noopener"><Icono nombre="boleta" /> Comprar boletas</a>
+            <p class="compra__pagos"><Icono nombre="escudo" /> Pago seguro con PSE, Visa o Mastercard</p>
+            <div class="compra__extras">
+              <a href={googleCalendarUrl(e, url)} target="_blank" rel="noopener"><Icono nombre="calendario" /> Agendar</a>
+              <button type="button" data-compartir data-titulo={e.titulo} data-texto={textoCompartir} data-url={url}><Icono nombre="compartir" /> <span data-compartir-txt>Compartir</span></button>
+              <a href={`${CONTACTO.whatsapp.href}?text=${encodeURIComponent(`Hola, tengo una pregunta sobre ${e.titulo}`)}`} target="_blank" rel="noopener"><Icono nombre="whatsapp" /> Dudas</a>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  {
+    otros.length > 0 && (
+      <section class="seccion otros" data-superficie="blanco" aria-labelledby="otros">
+        <div class="contenedor">
+          <div class="cabecera-seccion">
+            <p class="antetitulo">Sigue explorando</p>
+            <h2 id="otros" class="titulo-seccion">Otros eventos en venta</h2>
+          </div>
+          <div class="otros__lista">
+            {otros.map((o) => (
+              <TarjetaEvento evento={o} />
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <div class="barra-compra" data-superficie="noche">
+    <PrecioDesde evento={e} conEtapa={false} class="barra-compra__precio" />
+    <a class="btn btn--primario" href={e.compraUrl} target="_blank" rel="noopener"><Icono nombre="boleta" /> Comprar</a>
+  </div>
+</Base>
+
+<style>
+  .ficha-cab {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    padding: 12px 0 clamp(32px, 5vw, 56px);
+  }
+  .ficha-cab__fondo {
+    position: absolute;
+    inset: -40px -10%;
+    z-index: -1;
+    background-size: cover;
+    background-position: center;
+    opacity: 0.8;
+  }
+  .ficha-cab__fondo::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgb(0 10 50 / 0.6), rgb(0 10 50 / 0.86) 60%, var(--noche));
+  }
+  .migas ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    list-style: none;
+    margin: 0;
+    padding: 8px 0 20px;
+    font-size: 0.8125rem;
+    color: var(--texto-2);
+  }
+  .migas li + li::before {
+    content: '/';
+    margin-right: 8px;
+    opacity: 0.5;
+  }
+  .migas a {
+    text-decoration: none;
+    display: inline-flex;
+    min-height: 32px;
+    align-items: center;
+  }
+  .migas a:hover {
+    color: var(--blanco);
+    text-decoration: underline;
+  }
+  .migas [aria-current] {
+    display: inline-flex;
+    align-items: center;
+    color: var(--blanco);
+  }
+  .ficha-cab__rejilla {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+  .ficha-cab__arte {
+    margin: 0;
+    position: relative;
+    box-shadow: 0 30px 60px -20px rgb(0 0 0 / 0.65);
+    outline: 1px solid rgb(255 255 255 / 0.16);
+    outline-offset: -1px;
+  }
+  .ficha-cab__arte :global(img) {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+  .ficha-cab__arte figcaption {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 10px;
+    background: rgb(0 6 31 / 0.88);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .ficha-cab__arte figcaption :global(svg) {
+    width: 14px;
+    height: 14px;
+    color: var(--naranja);
+  }
+  .ficha-cab__texto {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    align-content: center;
+  }
+  .ficha-cab__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .ficha-cab__titulo {
+    font-size: clamp(2.5rem, 6.2vw, 4.5rem);
+    font-weight: 900;
+    font-stretch: var(--muy-estrecha);
+    text-transform: uppercase;
+    line-height: 0.92;
+  }
+  .ficha-cab__bajada {
+    font-size: 1.125rem;
+    color: var(--texto-2);
+    max-width: 50ch;
+  }
+  .ficha-cab__meta {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+    font-weight: 600;
+  }
+  .ficha-cab__meta li {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    line-height: 1.35;
+  }
+  .ficha-cab__meta :global(svg) {
+    width: 20px;
+    height: 20px;
+    flex: none;
+    color: var(--naranja);
+  }
+  .ficha-cab__sub {
+    color: var(--texto-2);
+    font-weight: 500;
+  }
+  .mayus-inicial::first-letter {
+    text-transform: uppercase;
+  }
+  @media (max-width: 1079.98px) {
+    .ficha-cab__arte {
+      order: -1;
+    }
+  }
+  @media (min-width: 1080px) {
+    .ficha-cab__rejilla {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+      gap: 56px;
+      align-items: center;
+    }
+  }
+
+  .ficha {
+    padding: clamp(32px, 5vw, 64px) 0 clamp(56px, 7vw, 96px);
+  }
+  .ficha__rejilla {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+  }
+  @media (min-width: 1080px) {
+    .ficha__rejilla {
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 56px;
+      align-items: start;
+    }
+  }
+  .ficha__principal {
+    display: grid;
+    gap: 22px;
+    min-width: 0;
+  }
+  .bloque {
+    background: var(--blanco);
+    padding: clamp(22px, 3vw, 36px);
+    display: grid;
+    gap: 18px;
+  }
+  .bloque__cab {
+    display: grid;
+    gap: 6px;
+  }
+  .bloque__titulo {
+    font-size: clamp(1.625rem, 2.6vw, 2.125rem);
+    font-weight: 900;
+    font-stretch: var(--muy-estrecha);
+    text-transform: uppercase;
+  }
+  .bloque__nota {
+    font-size: 0.875rem;
+    color: var(--texto-2);
+  }
+  .bloque__texto {
+    display: grid;
+    gap: 12px;
+    font-size: 1.0625rem;
+    max-width: 70ch;
+  }
+  .destacados {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .destacados li {
+    padding: 10px 14px;
+    background: var(--noche);
+    color: var(--blanco);
+    font-weight: 800;
+    font-stretch: var(--estrecha);
+    text-transform: uppercase;
+    font-size: 1.0625rem;
+  }
+  .artistas h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8125rem;
+    font-stretch: 100%;
+    letter-spacing: 0.14em;
+    font-weight: 700;
+    color: var(--acento-texto);
+    margin-bottom: 8px;
+  }
+  .artistas h3 :global(svg) {
+    width: 18px;
+    height: 18px;
+  }
+  .artistas ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .artistas li {
+    font-size: 1.5rem;
+    font-weight: 900;
+    font-stretch: var(--muy-estrecha);
+    text-transform: uppercase;
+  }
+
+  /* Tipos de entrada (servicio incluido) */
+  .tipos {
+    display: grid;
+    gap: 16px;
+  }
+  @media (min-width: 720px) {
+    .tipos {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .tipo {
+    --tipo: var(--noche);
+    border: 1px solid var(--linea);
+    display: grid;
+    align-content: start;
+  }
+  .tipo__cab {
+    background: var(--tipo);
+    color: #fff;
+    padding: 16px 18px;
+  }
+  .tipo__cab h3 {
+    font-size: 1.75rem;
+    font-weight: 900;
+    font-stretch: var(--muy-estrecha);
+    text-transform: uppercase;
+  }
+  .tipo__cab p {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.9;
+  }
+  .tipo__etapas {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-bottom: 1px solid var(--linea);
+  }
+  .tipo__etapas li {
+    display: grid;
+    gap: 2px;
+    padding: 14px 18px;
+    position: relative;
+  }
+  .tipo__etapas li + li {
+    border-left: 1px solid var(--linea);
+  }
+  .tipo__etapa {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--texto-2);
+  }
+  .tipo__etapas strong {
+    font-size: 1.625rem;
+    font-weight: 900;
+    font-stretch: var(--estrecha);
+  }
+  .tipo__vig {
+    display: none;
+    justify-self: start;
+    font-size: 0.6875rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    background: var(--naranja);
+    color: var(--noche);
+  }
+  .tipo__etapas li.es-vigente {
+    background: rgb(255 81 0 / 0.07);
+    box-shadow: inset 0 -3px 0 var(--naranja);
+  }
+  .tipo__etapas li.es-vigente .tipo__vig {
+    display: inline-block;
+  }
+  .tipo__etapas li.es-pasada strong {
+    text-decoration: line-through;
+    color: var(--texto-2);
+    font-weight: 700;
+  }
+  .tipo__incluye {
+    list-style: none;
+    margin: 0;
+    padding: 14px 18px 18px;
+    display: grid;
+    gap: 8px;
+  }
+  .tipo__incluye li {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+  .tipo__incluye :global(svg) {
+    width: 18px;
+    height: 18px;
+    flex: none;
+    color: var(--verde);
+    margin-top: 1px;
+  }
+
+  /* Tabla de localidades (precio + servicio + total) */
+  .tabla {
+    display: grid;
+    gap: 10px;
+  }
+  .tabla.es-pasada {
+    opacity: 0.55;
+  }
+  .tabla__etapa {
+    font-size: 0.9375rem;
+    color: var(--texto-2);
+  }
+  .tabla__etapa strong {
+    color: var(--texto);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .tabla__cab {
+    display: none;
+  }
+  .tabla__filas {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+  }
+  .fila {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px 12px;
+    padding: 14px 16px;
+    border: 1px solid var(--linea);
+    border-left: 4px solid var(--naranja);
+  }
+  .fila__nombre {
+    grid-column: 1 / -1;
+    display: grid;
+  }
+  .fila__nombre strong {
+    font-size: 1.25rem;
+    font-weight: 850;
+    font-stretch: var(--estrecha);
+    text-transform: uppercase;
+  }
+  .fila__nombre span {
+    font-size: 0.875rem;
+    color: var(--texto-2);
+  }
+  .fila__dato {
+    display: grid;
+  }
+  .fila__lbl {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--texto-2);
+  }
+  .fila__total strong {
+    font-size: 1.125rem;
+    font-weight: 900;
+  }
+  @media (min-width: 720px) {
+    .tabla__cab,
+    .fila {
+      grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(0, 1fr));
+      align-items: center;
+    }
+    .tabla__cab {
+      display: grid;
+      gap: 12px;
+      padding: 0 16px 0 20px;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--texto-2);
+    }
+    .tabla__cab span:not(:first-child) {
+      text-align: right;
+    }
+    .fila__nombre {
+      grid-column: auto;
+    }
+    .fila__dato {
+      text-align: right;
+    }
+    .fila__lbl {
+      display: none;
+    }
+  }
+  .bloque__cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 20px;
+    padding-top: 6px;
+  }
+  .bloque__cta p {
+    font-size: 0.875rem;
+    color: var(--texto-2);
+    flex: 1 1 240px;
+  }
+
+  .info {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr));
+    gap: 1px;
+    margin: 0;
+    background: var(--linea);
+    border: 1px solid var(--linea);
+  }
+  .info__item {
+    background: var(--blanco);
+    padding: 14px 16px;
+  }
+  .info dt {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--texto-2);
+  }
+  .info dt :global(svg) {
+    width: 16px;
+    height: 16px;
+    color: var(--naranja-oscuro);
+  }
+  .info dd {
+    margin: 4px 0 0;
+    font-weight: 650;
+    line-height: 1.4;
+  }
+  .bloque .enlace-flecha {
+    justify-self: start;
+  }
+
+  .mapa {
+    position: relative;
+    display: block;
+  }
+  .mapa :global(img) {
+    width: 100%;
+  }
+  .mapa__zoom {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: var(--noche);
+    color: #fff;
+    font-size: 0.8125rem;
+    font-weight: 700;
+  }
+  .mapa__zoom :global(svg) {
+    width: 16px;
+    height: 16px;
+  }
+  .afiches :global(img) {
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .legal-evento {
+    padding: 4px 0;
+  }
+  .legal-evento dl {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
+    gap: 14px 24px;
+    margin: 0;
+    font-size: 0.875rem;
+  }
+  .legal-evento dt {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--texto-2);
+  }
+  .legal-evento dd {
+    margin: 2px 0 0;
+    font-weight: 650;
+  }
+  .legal-evento a {
+    color: var(--acento-texto);
+  }
+
+  /* Caja de compra */
+  .ficha__lateral {
+    display: none;
+  }
+  @media (min-width: 1080px) {
+    .ficha__lateral {
+      display: block;
+      position: sticky;
+      top: calc(var(--alto-header) + 24px);
+    }
+  }
+  .compra {
+    background: var(--blanco);
+    box-shadow: var(--sombra-2);
+  }
+  .compra__cab {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    padding: 20px;
+    background: var(--noche);
+    color: #fff;
+  }
+  .compra__fecha {
+    display: grid;
+    justify-items: center;
+    min-width: 60px;
+    padding: 8px;
+    background: #fff;
+    color: var(--noche);
+    line-height: 1;
+    text-transform: uppercase;
+  }
+  .compra__mes {
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    color: var(--naranja-oscuro);
+  }
+  .compra__dia {
+    font-size: 1.875rem;
+    font-weight: 900;
+    font-stretch: var(--muy-estrecha);
+    margin: 2px 0;
+  }
+  .compra__sem {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+  }
+  .compra__titulo {
+    font-weight: 850;
+    font-stretch: var(--estrecha);
+    text-transform: uppercase;
+    font-size: 1.25rem;
+    line-height: 1.05;
+  }
+  .compra__lugar {
+    font-size: 0.8125rem;
+    color: rgb(255 255 255 / 0.74);
+    margin-top: 4px;
+  }
+  .compra__cuerpo {
+    --fondo: var(--papel);
+    display: grid;
+    gap: 16px;
+    padding: 24px 20px 20px;
+  }
+  .compra__pagos {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 0.8125rem;
+    color: var(--texto-2);
+  }
+  .compra__pagos :global(svg) {
+    width: 16px;
+    height: 16px;
+    color: var(--verde);
+    flex: none;
+  }
+  .compra__extras {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-top: 1px solid var(--linea);
+    padding-top: 12px;
+    gap: 6px;
+  }
+  .compra__extras a,
+  .compra__extras button {
+    display: grid;
+    justify-items: center;
+    gap: 4px;
+    min-height: 56px;
+    padding: 8px 4px;
+    background: transparent;
+    border: 1px solid transparent;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-decoration: none;
+    color: var(--texto);
+  }
+  .compra__extras a:hover,
+  .compra__extras button:hover {
+    border-color: var(--linea-fuerte);
+  }
+  .compra__extras :global(svg) {
+    width: 20px;
+    height: 20px;
+    color: var(--naranja-oscuro);
+  }
+
+  .otros__lista {
+    display: grid;
+    gap: 22px;
+  }
+  .otros {
+    --fondo: var(--blanco);
+  }
+
+  /* Barra fija de compra en móvil y tableta */
+  .barra-compra {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: var(--z-barra);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px var(--margen) max(12px, env(safe-area-inset-bottom));
+    background: rgb(0 6 31 / 0.96);
+    border-top: 1px solid rgb(255 255 255 / 0.14);
+    box-shadow: 0 -10px 30px rgb(0 0 0 / 0.25);
+  }
+  .barra-compra :global(.precio-desde__valor) {
+    font-size: 1.5rem;
+  }
+  .barra-compra :global(.precio-desde__nota) {
+    font-size: 0.75rem;
+  }
+  .barra-compra .btn {
+    flex: none;
+    padding: 0 22px;
+  }
+  @media (min-width: 1080px) {
+    .barra-compra {
+      display: none;
+    }
+  }
+  @media (max-width: 1079.98px) {
+    :global(body.con-barra-compra) {
+      padding-bottom: 84px;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-compartir]').forEach((b) => {
+    b.addEventListener('click', async () => {
+      const { titulo = '', texto = '', url = location.href } = b.dataset;
+      const txt = b.querySelector<HTMLElement>('[data-compartir-txt]');
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: titulo, text: texto, url });
+        } catch {
+          /* el usuario canceló */
+        }
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(`${texto} ${url}`);
+        if (txt) txt.textContent = '¡Enlace copiado!';
+      } catch {
+        window.open(`https://wa.me/?text=${encodeURIComponent(`${texto} ${url}`)}`, '_blank', 'noopener');
+      }
+      setTimeout(() => txt && (txt.textContent = 'Compartir'), 2500);
+    });
+  });
+</script>
